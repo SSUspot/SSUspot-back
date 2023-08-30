@@ -18,6 +18,6 @@ class Spot(
         @field:Column(name = "longitude")
         var longitude: Double,
 
-        //이 지역과 관련된 사진 연관관계 설정
+        //TODO: 이 지역과 관련된 사진 연관관계 설정
 
 )

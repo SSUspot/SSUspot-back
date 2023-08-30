@@ -24,8 +24,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	runtimeOnly("com.mysql:mysql-connector-j")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+
+	//postgreSQL
+	implementation("org.postgresql:postgresql:42.2.23")
+	implementation("com.querydsl:querydsl-jpa")
+	implementation("org.hibernate:hibernate-spatial:5.4.32.Final")
+
+	//jpa
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 }
 
 tasks.withType<KotlinCompile> {
