@@ -28,7 +28,7 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
 	//postgreSQL
-	implementation("org.postgresql:postgresql:42.2.23")
+	implementation("org.postgresql:postgresql:42.2.27")
 	implementation("com.querydsl:querydsl-jpa")
 	implementation("org.hibernate:hibernate-spatial:5.4.32.Final")
 
