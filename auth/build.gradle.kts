@@ -17,9 +17,11 @@ java {
 
 repositories {
 	mavenCentral()
+	maven { url = uri("https://repo.spring.io/milestone") }
+	maven { url = uri("https://repo.spring.io/snapshot") }
 }
-
 dependencies {
+	implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.springframework.boot:spring-boot-starter-web")
@@ -28,6 +30,23 @@ dependencies {
 	runtimeOnly("com.mysql:mysql-connector-j")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.springframework.security:spring-security-test")
+
+	implementation("io.jsonwebtoken:jjwt-api:0.10.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.10.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.10.5")
+
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
+	testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
+	implementation("org.springframework.boot:spring-boot-starter-aop")
+
+}
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2021.0.4")
+	}
 }
 
 tasks.withType<KotlinCompile> {
