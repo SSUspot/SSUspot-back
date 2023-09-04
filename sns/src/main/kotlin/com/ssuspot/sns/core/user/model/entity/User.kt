@@ -1,6 +1,9 @@
 package com.ssuspot.sns.core.user.model.entity
 
-import jakarta.persistence.*
+import com.ssuspot.sns.core.comment.model.entity.Comment
+import com.ssuspot.sns.core.like.model.entity.Like
+import com.ssuspot.sns.core.post.model.entity.Post
+import javax.persistence.*
 
 @Entity
 @Table(
@@ -39,4 +42,14 @@ class User(
 
         @field:Column(name = "profile_image_link")
         var profileImageLink: String,
+
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        val posts: MutableList<Post> = mutableListOf(),
+
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        val comments: MutableList<Comment> = mutableListOf(),
+
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        val likes: MutableList<Like> = mutableListOf()
+
 )

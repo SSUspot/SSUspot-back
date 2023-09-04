@@ -34,6 +34,9 @@ dependencies {
 
 	//jpa
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+
+	//h2 for test
+	runtimeOnly("com.h2database:h2")
 }
 
 tasks.withType<KotlinCompile> {

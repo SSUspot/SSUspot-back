@@ -42,6 +42,8 @@ dependencies {
 	testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 
+	runtimeOnly("com.h2database:h2")
+
 }
 dependencyManagement {
 	imports {
