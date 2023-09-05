@@ -9,7 +9,7 @@ import javax.persistence.*
 class Like(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long? =null,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "user_id")

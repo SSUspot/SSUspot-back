@@ -9,7 +9,7 @@ import javax.persistence.*
 class Tag(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long?,
+    val id: Long? = null,
 
     @field:Column(name = "tag_name")
     val tagName: String,

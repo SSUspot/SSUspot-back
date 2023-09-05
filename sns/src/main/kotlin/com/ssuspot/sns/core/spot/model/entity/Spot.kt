@@ -1,6 +1,6 @@
 package com.ssuspot.sns.core.spot.model.entity
 
-import com.ssuspot.sns.core.post.model.entity.PostSpot
+import com.ssuspot.sns.core.post.model.entity.Post
 import javax.persistence.*
 
 @Entity
@@ -8,7 +8,7 @@ import javax.persistence.*
 class Spot(
         @field:Id
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long?,
+        val id: Long? =null,
 
         @field:Column(name = "spot_name")
         var spotName: String,
@@ -20,9 +20,6 @@ class Spot(
         @field:Column(name = "longitude")
         var longitude: Double,
 
-        @field:OneToMany(mappedBy = "spot")
-        val postSpots: MutableList<PostSpot> = mutableListOf()
-
-        //TODO: 이 지역과 관련된 사진 연관관계 설정
-
+        @field:OneToMany(mappedBy = "spot", cascade = [CascadeType.ALL])
+        var posts: MutableList<Post> = mutableListOf()
 )

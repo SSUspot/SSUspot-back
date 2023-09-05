@@ -10,20 +10,20 @@ import javax.persistence.*
         name = "users",
         //id를 기준으로 unique index를 생성한다.
         uniqueConstraints = [
-                UniqueConstraint(name = "user_name_unique", columnNames = ["user_name"]),
-                UniqueConstraint(name = "email_unique", columnNames = ["email"]),
-                UniqueConstraint(name = "nickname_unique", columnNames = ["nickname"]),
+            UniqueConstraint(name = "user_name_unique", columnNames = ["user_name"]),
+            UniqueConstraint(name = "email_unique", columnNames = ["email"]),
+            UniqueConstraint(name = "nickname_unique", columnNames = ["nickname"]),
         ],
         indexes = [
-                Index(name = "user_name_index", columnList = "user_name"),
-                Index(name = "email_index", columnList = "email"),
-                Index(name = "nickname_index", columnList = "nickname"),
+            Index(name = "user_name_index", columnList = "user_name"),
+            Index(name = "email_index", columnList = "email"),
+            Index(name = "nickname_index", columnList = "nickname"),
         ]
 )
 class User(
         @field:Id
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id: Long?,
+        val id: Long? = null,
 
         @field:Column(length = 64, name = "user_name", unique = true)
         var userName: String,
