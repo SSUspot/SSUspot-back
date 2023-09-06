@@ -23,7 +23,7 @@ class Post(
 
         @field:Lob
         @field:Column(name = "content")
-        val content: String,
+        var content: String,
 
         //TODO: 조회수 집계 방식의 변화
         @field:Column(name = "view_count")

@@ -13,12 +13,15 @@ class Spot(
         @field:Column(name = "spot_name")
         var spotName: String,
 
+        @field:Column(name = "spot_thumbnail_image_link")
+        var spotThumbnailImageLink: String,
+
         //위도 경도 값 저장
         @field:Column(name = "latitude")
-        var latitude: Double,
+        val latitude: Double,
 
         @field:Column(name = "longitude")
-        var longitude: Double,
+        val longitude: Double,
 
         @field:OneToMany(mappedBy = "spot", cascade = [CascadeType.ALL])
         var posts: MutableList<Post> = mutableListOf()
