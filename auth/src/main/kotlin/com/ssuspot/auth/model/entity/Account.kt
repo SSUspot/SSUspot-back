@@ -9,16 +9,21 @@ class Account(
         @field:Id
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
         val id:Long? = null,
+
         @field:NotNull
-        @Column(length = 64, unique = true)
-        var userId: String,
-        @field:NotNull
-        @Column(length = 80, unique = true)
+        @field:Column(length = 80, unique = true)
         var email: String,
+
         @field:NotNull
+        @field:Column(length = 100)
         var password: String,
+
         @field:NotNull
+        @field:Column(length = 100)
         var refreshToken: String,
+
+        @field:OneToMany(mappedBy = "account", cascade = [CascadeType.ALL], orphanRemoval = true)
+        var services: MutableList<AccountService> = mutableListOf()
 ){
     fun renewRefreshToken(refreshToken: String) {
         this.refreshToken = refreshToken
