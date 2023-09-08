@@ -5,6 +5,7 @@ import com.ssuspot.sns.core.common.model.entity.BaseTimeEntity
 import com.ssuspot.sns.core.like.model.entity.Like
 import com.ssuspot.sns.core.post.model.entity.Post
 import javax.persistence.*
+import javax.validation.constraints.NotNull
 
 @Entity
 @Table(
@@ -26,15 +27,19 @@ class User(
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
         val id: Long? = null,
 
+        @field:NotNull
         @field:Column(length = 64, name = "user_name", unique = true)
         var userName: String,
 
+        @field:NotNull
         @field:Column(name = "password")
         var password: String,
 
+        @field:NotNull
         @field:Column(length = 64, name = "email", unique = true)
         var email: String,
 
+        @field:NotNull
         @field:Column(length = 64, name = "nickname", unique = true)
         var nickname: String,
 
@@ -43,6 +48,8 @@ class User(
 
         @field:Column(name = "profile_image_link")
         var profileImageLink: String,
+
+        //spring cache 이용해 refresh token 저장
 
         @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
         val posts: MutableList<Post> = mutableListOf(),

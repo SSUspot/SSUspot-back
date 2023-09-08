@@ -37,6 +37,18 @@ dependencies {
 
 	//h2 for test
 	runtimeOnly("com.h2database:h2")
+
+
+	implementation("io.jsonwebtoken:jjwt-api:0.10.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-impl:0.10.5")
+	runtimeOnly("io.jsonwebtoken:jjwt-jackson:0.10.5")
+
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.springframework.boot:spring-boot-starter-validation")
+	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
+	testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
+	implementation("org.springframework.boot:spring-boot-starter-aop")
 }
 
 tasks.withType<KotlinCompile> {

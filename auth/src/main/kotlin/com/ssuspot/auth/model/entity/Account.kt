@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull
 class Account(
         @field:Id
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-        val id:Long? = null,
+        val id: Long? = null,
 
         @field:NotNull
         @field:Column(length = 80, unique = true)
@@ -23,9 +23,14 @@ class Account(
         var refreshToken: String,
 
         @field:OneToMany(mappedBy = "account", cascade = [CascadeType.ALL], orphanRemoval = true)
-        var services: MutableList<AccountService> = mutableListOf()
-){
+        var serviceClients: MutableList<AccountServiceClient> = mutableListOf()
+) {
     fun renewRefreshToken(refreshToken: String) {
         this.refreshToken = refreshToken
+    }
+
+    fun addServiceClient(accountServiceClient: AccountServiceClient) {
+        serviceClients.add(accountServiceClient)
+        accountServiceClient.account = this
     }
 }
