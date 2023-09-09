@@ -18,12 +18,16 @@ import javax.crypto.SecretKey
 open class JwtTokenProvider(
         @Value("\${app.jwt.secret}") private val jwtSecret: String,
         @Value("\${app.jwt.accessTokenValidMS}") private val accessTokenValidMilSecond: Long = 0,
+        @Value("\${app.jwt.refreshTokenValidMS}") private val refreshTokenValidMilSecond: Long = 0
 ) {
 
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
 
     fun generateAccessToken(email: String): JwtTokenDto {
         return generateToken(email, accessTokenValidMilSecond)
+    }
+    fun generateRefreshToken(email: String): JwtTokenDto {
+        return generateToken(email, refreshTokenValidMilSecond)
     }
 
     fun generateToken(email: String, tokenValidMilSecond: Long): JwtTokenDto {
