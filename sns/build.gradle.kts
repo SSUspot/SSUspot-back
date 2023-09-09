@@ -49,6 +49,10 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
 	testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
+
+	// spring cache
+	implementation("org.springframework.boot:spring-boot-starter-cache")
+
 }
 
 tasks.withType<KotlinCompile> {

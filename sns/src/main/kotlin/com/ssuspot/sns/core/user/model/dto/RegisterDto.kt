@@ -5,6 +5,6 @@ class RegisterDto(
         val password: String,
         val userName: String,
         val nickname: String,
-        val profileMessage: String="",
-        val profileImageLink: String=""
+        val profileMessage: String?,
+        val profileImageLink: String?
 )

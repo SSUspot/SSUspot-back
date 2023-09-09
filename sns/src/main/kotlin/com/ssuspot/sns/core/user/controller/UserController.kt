@@ -21,7 +21,10 @@ class UserController (
                 RegisterDto(
                         request.email,
                         request.password,
-                        request.nickname
+                        request.userName,
+                        request.nickname,
+                        request.profileMessage,
+                        request.profileImageLink
                 )
         )
     }

@@ -44,12 +44,12 @@ class User(
         var nickname: String,
 
         @field:Column(name = "profile_message")
-        var profileMessage: String,
+        var profileMessage: String?,
 
         @field:Column(name = "profile_image_link")
-        var profileImageLink: String,
+        var profileImageLink: String?,
 
-        //spring cache 이용해 refresh token 저장
+        //TODO: spring cache 이용해 refresh token 저장
 
         @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
         val posts: MutableList<Post> = mutableListOf(),
