@@ -21,7 +21,7 @@ class UserController (
     fun register(
         @RequestBody request: RegisterRequest
     ):ResponseEntity<*>{
-        userService.createUser(
+        userService.registerProcess(
                 RegisterDto(
                         request.email,
                         request.password,

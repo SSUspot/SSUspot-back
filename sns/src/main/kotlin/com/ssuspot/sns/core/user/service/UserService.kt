@@ -1,5 +1,6 @@
 package com.ssuspot.sns.core.user.service
 
+import com.ssuspot.sns.core.user.event.RegisteredUserEvent
 import com.ssuspot.sns.core.user.model.dto.AuthTokenDto
 import com.ssuspot.sns.core.user.model.dto.LoginDto
 import com.ssuspot.sns.core.user.model.dto.RegisterDto
@@ -9,6 +10,7 @@ import com.ssuspot.sns.security.JwtTokenProvider
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.CachePut
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,41 +20,37 @@ class UserService(
         val userRepository: UserRepository,
         private val passwordEncoder: PasswordEncoder,
         private val jwtTokenProvider: JwtTokenProvider,
+        private val applicationEventPublisher: ApplicationEventPublisher
 ) {
-    @Transactional(rollbackFor = [Exception::class])
-    fun createUser(
+    fun registerProcess(
             registerDto: RegisterDto
-    ){
-        //TODO: password encoder 적용, refreshtoken 적용
-        userRepository.save(
-                User(
-                        userName = registerDto.userName,
-                        email = registerDto.email,
-                        password = registerDto.password,
-                        nickname = registerDto.nickname,
-                        profileMessage = registerDto.profileMessage,
-                        profileImageLink = registerDto.profileImageLink
-                )
-        )
+    ) {
+        val savedUser = createUser(registerDto)
+        val registeredUserEvent = RegisteredUserEvent(savedUser.id, savedUser.email)
+        try{
+            applicationEventPublisher.publishEvent(registeredUserEvent)
+        } catch (e: Exception) {
+            println("event publish error")
+        }
     }
+
     @Transactional
     fun login(
             loginDto: LoginDto
-    ): AuthTokenDto{
+    ): AuthTokenDto {
         val user = userRepository.findByEmail(loginDto.email) ?: throw Exception("User Not Found")
-        if(user.password != loginDto.password) throw Exception("Password Not Match")
+        if (user.password != loginDto.password) throw Exception("Password Not Match")
 
-        //TODO: refresh,access token 생성
+        //refresh,access token 생성
         val accessToken = jwtTokenProvider.generateAccessToken(user.email)
         val refreshToken = jwtTokenProvider.generateRefreshToken(user.email)
 
-        //TODO: refresh token spring cache에 저장
+        //refresh token spring cache에 저장
         saveRefreshToken(user.email, refreshToken.token)
 
 
         return AuthTokenDto(accessToken, refreshToken)
     }
-
     //TODO: logout
 
     @CachePut(value = ["refreshToken"], key = "#email")
@@ -68,4 +66,21 @@ class UserService(
     @CacheEvict(value = ["refreshToken"], key = "#email")
     fun deleteRefreshToken(email: String) {
     }
+
+    private fun createUser(
+            registerDto: RegisterDto
+    ): User {
+        return userRepository.save(
+                User(
+                        userName = registerDto.userName,
+                        email = registerDto.email,
+                        password = passwordEncoder.encode(registerDto.password),
+                        nickname = registerDto.nickname,
+                        profileMessage = registerDto.profileMessage,
+                        profileImageLink = registerDto.profileImageLink
+                )
+        )
+    }
+
+
 }

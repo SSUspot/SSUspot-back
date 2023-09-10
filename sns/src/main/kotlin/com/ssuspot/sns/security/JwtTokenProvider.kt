@@ -17,8 +17,8 @@ import javax.crypto.SecretKey
 @Component
 open class JwtTokenProvider(
         @Value("\${app.jwt.secret}") private val jwtSecret: String,
-        @Value("\${app.jwt.accessTokenValidMS}") private val accessTokenValidMilSecond: Long = 0,
-        @Value("\${app.jwt.refreshTokenValidMS}") private val refreshTokenValidMilSecond: Long = 0
+        @Value("\${app.jwt.accessTokenExpirationMS}") private val accessTokenValidMilSecond: Long = 0,
+        @Value("\${app.jwt.refreshTokenExpirationMS}") private val refreshTokenValidMilSecond: Long = 0
 ) {
 
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtSecret.toByteArray())

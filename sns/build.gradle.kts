@@ -27,13 +27,7 @@ dependencies {
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
-	//postgreSQL
-	implementation("org.postgresql:postgresql:42.2.27")
 	implementation("com.querydsl:querydsl-jpa")
-	implementation("org.hibernate:hibernate-spatial:5.4.32.Final")
-
-	//jpa
-	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
 	//h2 for test
 	runtimeOnly("com.h2database:h2")
@@ -51,7 +45,6 @@ dependencies {
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
-	testImplementation("org.springframework.cloud:spring-cloud-starter-contract-stub-runner")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 
 	// spring cache
