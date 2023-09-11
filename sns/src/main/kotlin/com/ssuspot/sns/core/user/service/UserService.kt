@@ -38,8 +38,9 @@ class UserService(
     fun login(
             loginDto: LoginDto
     ): AuthTokenDto {
-        val user = userRepository.findByEmail(loginDto.email) ?: throw Exception("User Not Found")
-        if (user.password != loginDto.password) throw Exception("Password Not Match")
+        val user = userRepository.findByEmail(loginDto.email) ?: throw Exception("email or password is wrong")
+
+        if (!passwordEncoder.matches(user.password,loginDto.password)) throw Exception("email or password is wrong")
 
         //refresh,access token 생성
         val accessToken = jwtTokenProvider.generateAccessToken(user.email)

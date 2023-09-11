@@ -27,7 +27,8 @@ class SecurityConfig(
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {
-        http.httpBasic { it.disable() }.csrf { it.disable() }.cors { }
+        http
+            .httpBasic { it.disable() }.csrf { it.disable() }.cors { }
                 .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }.authorizeHttpRequests {
                     it.requestMatchers(
                             AntPathRequestMatcher("/**") //개발을 위해 모두 허용
