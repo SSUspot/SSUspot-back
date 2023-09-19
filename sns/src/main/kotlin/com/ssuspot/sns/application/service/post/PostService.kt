@@ -15,12 +15,11 @@ class PostService(
 ) {
     fun createPost(
         createPostDto: CreatePostDto
-    ) {
-        //spot 찾음
+    ): CreatePostDto {
         val spot = spotService.findValidSpot(createPostDto.spotId)
         val user = userService.findValidUserByEmail(createPostDto.email)
 
-        postRepository.save(
+        val savedPost = postRepository.save(
             Post(
                 title = createPostDto.title,
                 user = user,
@@ -28,6 +27,13 @@ class PostService(
                 imageUrls = createPostDto.imageUrls,
                 spot = spot
             )
+        )
+        return CreatePostDto(
+            title = savedPost.title,
+            content = savedPost.content,
+            email = savedPost.user.email,
+            imageUrls = savedPost.imageUrls,
+            spotId = savedPost.spot.id!!
         )
     }
 }
