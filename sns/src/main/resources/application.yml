@@ -1,12 +1,12 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5434/ssuspot_sns
+    url: ${SSUSPOT_SNS_DB_URL}
     username: ${SSUSPOT_SNS_DB_USERNAME}
     password: ${SSUSPOT_SNS_DB_PASSWORD}
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     properties:
       hibernate:
         format_sql: true
