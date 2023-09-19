@@ -4,6 +4,7 @@ import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.application.dto.user.AuthTokenDto
 import com.ssuspot.sns.application.dto.user.LoginDto
 import com.ssuspot.sns.application.dto.user.RegisterDto
+import com.ssuspot.sns.application.dto.user.RegisterResponseDto
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
 import com.ssuspot.sns.domain.model.user.entity.User
@@ -25,28 +26,37 @@ class UserService(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
     fun registerProcess(
-            registerDto: RegisterDto
-    ) {
+        registerDto: RegisterDto
+    ): RegisterResponseDto {
         val savedUser = createUser(registerDto)
         val registeredUserEvent = RegisteredUserEvent(savedUser.id, savedUser.email)
-        try{
+        try {
             applicationEventPublisher.publishEvent(registeredUserEvent)
         } catch (e: Exception) {
             println("event publish error")
         }
+
+        return RegisterResponseDto(
+            savedUser.id!!,
+            savedUser.email,
+            savedUser.userName,
+            savedUser.nickname,
+            savedUser.profileMessage,
+            savedUser.profileImageLink
+        )
     }
 
     fun findValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email)
-                ?: throw UserNotFoundException()
+            ?: throw UserNotFoundException()
     }
 
     @Transactional
     fun login(
-            loginDto: LoginDto
+        loginDto: LoginDto
     ): AuthTokenDto {
         val user = userRepository.findByEmail(loginDto.email) ?: throw UserNotFoundException()
-        if (!passwordEncoder.matches(loginDto.password,user.password)) throw UserPasswordIncorrectException()
+        if (!passwordEncoder.matches(loginDto.password, user.password)) throw UserPasswordIncorrectException()
 
         //refresh,access token 생성
         val accessToken = jwtTokenProvider.generateAccessToken(user.email)
@@ -56,6 +66,7 @@ class UserService(
         saveRefreshToken(user.email, refreshToken.token)
         return AuthTokenDto(accessToken, refreshToken)
     }
+
     // logout 기능 구현 필요
     @CachePut(value = ["refreshToken"], key = "#email")
     fun saveRefreshToken(email: String, refreshToken: String): String {
@@ -73,17 +84,17 @@ class UserService(
     }
 
     private fun createUser(
-            registerDto: RegisterDto
+        registerDto: RegisterDto
     ): User {
         return userRepository.save(
-                User(
-                        userName = registerDto.userName,
-                        email = registerDto.email,
-                        password = passwordEncoder.encode(registerDto.password),
-                        nickname = registerDto.nickname,
-                        profileMessage = registerDto.profileMessage,
-                        profileImageLink = registerDto.profileImageLink
-                )
+            User(
+                userName = registerDto.userName,
+                email = registerDto.email,
+                password = passwordEncoder.encode(registerDto.password),
+                nickname = registerDto.nickname,
+                profileMessage = registerDto.profileMessage,
+                profileImageLink = registerDto.profileImageLink
+            )
         )
     }
 

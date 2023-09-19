@@ -5,6 +5,7 @@ import com.ssuspot.sns.application.dto.user.RegisterDto
 import com.ssuspot.sns.api.request.user.LoginRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
+import com.ssuspot.sns.api.response.user.RegisterResponse
 import com.ssuspot.sns.application.service.user.UserService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -20,8 +21,8 @@ class UserController (
     @PostMapping("/register")
     fun register(
         @RequestBody request: RegisterRequest
-    ):ResponseEntity<*>{
-        userService.registerProcess(
+    ):ResponseEntity<RegisterResponse>{
+        val savedUser = userService.registerProcess(
                 RegisterDto(
                         request.email,
                         request.password,
@@ -31,8 +32,16 @@ class UserController (
                         request.profileImageLink
                 )
         )
-        //200 OK
-        return ResponseEntity.ok().build<Any>()
+        return ResponseEntity.ok().body(
+            RegisterResponse(
+                    savedUser.id,
+                    savedUser.email,
+                    savedUser.userName,
+                    savedUser.nickname,
+                    savedUser.profileMessage,
+                    savedUser.profileImageLink
+            )
+        )
     }
 
     @PostMapping("/login")

@@ -1,6 +1,7 @@
 package com.ssuspot.sns.application.service.post
 
 import com.ssuspot.sns.application.dto.post.CreatePostDto
+import com.ssuspot.sns.application.dto.post.CreatePostResponseDto
 import com.ssuspot.sns.application.service.spot.SpotService
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.domain.model.post.entity.Post
@@ -15,7 +16,7 @@ class PostService(
 ) {
     fun createPost(
         createPostDto: CreatePostDto
-    ): CreatePostDto {
+    ): CreatePostResponseDto {
         val spot = spotService.findValidSpot(createPostDto.spotId)
         val user = userService.findValidUserByEmail(createPostDto.email)
 
@@ -28,7 +29,8 @@ class PostService(
                 spot = spot
             )
         )
-        return CreatePostDto(
+        return CreatePostResponseDto(
+            postId = savedPost.id!!,
             title = savedPost.title,
             content = savedPost.content,
             email = savedPost.user.email,
