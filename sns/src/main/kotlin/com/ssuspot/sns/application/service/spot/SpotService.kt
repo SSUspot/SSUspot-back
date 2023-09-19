@@ -32,5 +32,9 @@ class SpotService(
                 savedSpot.longitude
         )
     }
-    //get spot list
+
+    fun findValidSpot(spotId: Long): Spot {
+        return spotRepository.findById(spotId)
+                .orElseThrow { throw Exception("spot not found") }
+    }
 }

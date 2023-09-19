@@ -29,11 +29,13 @@ dependencies {
 
 	implementation("com.querydsl:querydsl-jpa")
 
-	//h2 for test
+	// h2 for test
 	runtimeOnly("com.h2database:h2")
 
+	// postgreSQL
+	implementation("org.postgresql:postgresql")
 
-	//spring security
+	// spring security
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	testImplementation("org.springframework.security:spring-security-test")
 
@@ -49,7 +51,6 @@ dependencies {
 
 	// spring cache
 	implementation("org.springframework.boot:spring-boot-starter-cache")
-
 }
 
 tasks.withType<KotlinCompile> {

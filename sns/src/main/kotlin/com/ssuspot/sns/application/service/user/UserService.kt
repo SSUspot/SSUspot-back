@@ -34,6 +34,11 @@ class UserService(
         }
     }
 
+    fun findValidUserByEmail(email: String): User {
+        return userRepository.findByEmail(email)
+                ?: throw Exception("user not found")
+    }
+
     @Transactional
     fun login(
             loginDto: LoginDto
