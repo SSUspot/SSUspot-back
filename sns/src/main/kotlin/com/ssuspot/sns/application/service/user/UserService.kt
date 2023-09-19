@@ -5,6 +5,7 @@ import com.ssuspot.sns.application.dto.user.AuthTokenDto
 import com.ssuspot.sns.application.dto.user.LoginDto
 import com.ssuspot.sns.application.dto.user.RegisterDto
 import com.ssuspot.sns.application.dto.user.RegisterResponseDto
+import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
 import com.ssuspot.sns.domain.model.user.entity.User
@@ -28,6 +29,9 @@ class UserService(
     fun registerProcess(
         registerDto: RegisterDto
     ): RegisterResponseDto {
+        val user = userRepository.findByEmail(registerDto.email)
+        if(user != null) throw EmailExistException()
+
         val savedUser = createUser(registerDto)
         val registeredUserEvent = RegisteredUserEvent(savedUser.id, savedUser.email)
         try {
