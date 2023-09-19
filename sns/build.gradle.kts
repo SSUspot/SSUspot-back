@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
 
 plugins {
 	id("org.springframework.boot") version "2.7.7"
@@ -6,6 +7,7 @@ plugins {
 	kotlin("jvm") version "1.8.22"
 	kotlin("plugin.spring") version "1.8.22"
 	kotlin("plugin.jpa") version "1.8.22"
+	kotlin("kapt") version "1.8.22"
 }
 
 group = "com.ssuspot"
@@ -51,6 +53,10 @@ dependencies {
 
 	// spring cache
 	implementation("org.springframework.boot:spring-boot-starter-cache")
+
+	// querydsl
+	implementation("com.querydsl:querydsl-jpa:4.4.0")
+	kapt("com.querydsl:querydsl-apt:4.4.0:jpa")
 }
 
 tasks.withType<KotlinCompile> {

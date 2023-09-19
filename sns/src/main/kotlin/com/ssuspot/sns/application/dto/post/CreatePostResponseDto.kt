@@ -5,6 +5,6 @@ class CreatePostResponseDto(
     val title: String,
     val content: String,
     val email: String,
-    val imageUrls: String,
+    val imageUrls: List<String>,
     val spotId: Long,
 )

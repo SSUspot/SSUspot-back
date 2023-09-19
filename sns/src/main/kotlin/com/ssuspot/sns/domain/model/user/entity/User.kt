@@ -2,7 +2,7 @@ package com.ssuspot.sns.domain.model.user.entity
 
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
-import com.ssuspot.sns.domain.model.post.entity.Like
+import com.ssuspot.sns.domain.model.post.entity.PostLike
 import com.ssuspot.sns.domain.model.post.entity.Post
 import javax.persistence.*
 import javax.validation.constraints.NotNull
@@ -58,7 +58,7 @@ class User(
         val comments: MutableList<Comment> = mutableListOf(),
 
         @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
-        val likes: MutableList<Like> = mutableListOf()
+        val postLikes: MutableList<PostLike> = mutableListOf()
 
 ): BaseTimeEntity(){
         fun updateNickname(newNickname: String) {

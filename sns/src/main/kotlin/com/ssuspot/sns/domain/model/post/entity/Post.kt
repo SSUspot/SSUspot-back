@@ -31,14 +31,14 @@ class Post(
     @field:Column(name = "like_count")
     var likeCount: Long = 0,
 
-    @field:Column(name = "image_urls")
-    var imageUrls: String,
+    @field:ElementCollection
+    var imageUrls: List<String> = listOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
     val comments: MutableList<Comment> = mutableListOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
-    val likes: MutableList<Like> = mutableListOf(),
+    val postLikes: MutableList<PostLike> = mutableListOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
     val postTags: MutableList<PostTag> = mutableListOf(),
