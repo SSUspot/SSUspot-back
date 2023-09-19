@@ -1,4 +1,3 @@
 package com.ssuspot.sns.domain.exceptions.user
 
-class UserPasswordIncorrectException {
-}
+class UserPasswordIncorrectException : RuntimeException("User Password Incorrect")

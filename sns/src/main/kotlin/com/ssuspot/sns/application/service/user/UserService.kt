@@ -4,6 +4,8 @@ import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.application.dto.user.AuthTokenDto
 import com.ssuspot.sns.application.dto.user.LoginDto
 import com.ssuspot.sns.application.dto.user.RegisterDto
+import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
+import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
 import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.infrastructure.repository.user.UserRepository
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
@@ -36,16 +38,15 @@ class UserService(
 
     fun findValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email)
-                ?: throw Exception("user not found")
+                ?: throw UserNotFoundException()
     }
 
     @Transactional
     fun login(
             loginDto: LoginDto
     ): AuthTokenDto {
-        val user = userRepository.findByEmail(loginDto.email) ?: throw Exception("email or password is wrong")
-
-        if (!passwordEncoder.matches(loginDto.password,user.password)) throw Exception("email or password is wrong")
+        val user = userRepository.findByEmail(loginDto.email) ?: throw UserNotFoundException()
+        if (!passwordEncoder.matches(loginDto.password,user.password)) throw UserPasswordIncorrectException()
 
         //refresh,access token 생성
         val accessToken = jwtTokenProvider.generateAccessToken(user.email)
@@ -53,12 +54,9 @@ class UserService(
 
         //refresh token spring cache에 저장
         saveRefreshToken(user.email, refreshToken.token)
-
-
         return AuthTokenDto(accessToken, refreshToken)
     }
     // logout 기능 구현 필요
-
     @CachePut(value = ["refreshToken"], key = "#email")
     fun saveRefreshToken(email: String, refreshToken: String): String {
         return refreshToken
