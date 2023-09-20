@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.post
 
-class CreatePostResponseDto(
+class PostResponseDto(
     val postId: Long,
     val title: String,
     val content: String,

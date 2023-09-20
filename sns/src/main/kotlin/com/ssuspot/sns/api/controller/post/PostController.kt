@@ -26,14 +26,14 @@ class PostController(
     ): ResponseEntity<List<PostResponse>> {
         val posts = postService.getPostsByUserId(GetPostsDto(page, size, userDetails.username))
         return ResponseEntity.ok(
-            posts.content.map {
+            posts.map {
                 PostResponse(
-                    it.id!!,
+                    it.postId,
                     it.title,
                     it.content,
-                    it.user.email,
+                    it.email,
                     it.imageUrls,
-                    it.spot.id!!
+                    it.spotId
                 )
             }
         )

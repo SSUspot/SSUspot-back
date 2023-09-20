@@ -1,13 +1,12 @@
 package com.ssuspot.sns.application.service.post
 
 import com.ssuspot.sns.application.dto.post.CreatePostDto
-import com.ssuspot.sns.application.dto.post.CreatePostResponseDto
+import com.ssuspot.sns.application.dto.post.PostResponseDto
 import com.ssuspot.sns.application.dto.post.GetPostsDto
 import com.ssuspot.sns.application.service.spot.SpotService
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.infrastructure.repository.post.PostRepository
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 
@@ -19,7 +18,7 @@ class PostService(
 ) {
     fun createPost(
         createPostDto: CreatePostDto
-    ): CreatePostResponseDto {
+    ): PostResponseDto {
         val spot = spotService.findValidSpot(createPostDto.spotId)
         val user = userService.findValidUserByEmail(createPostDto.email)
 
@@ -32,7 +31,7 @@ class PostService(
                 spot = spot
             )
         )
-        return CreatePostResponseDto(
+        return PostResponseDto(
             postId = savedPost.id!!,
             title = savedPost.title,
             content = savedPost.content,
@@ -42,9 +41,18 @@ class PostService(
         )
     }
 
-    fun getPostsByUserId(getPostsRequest: GetPostsDto): Page<Post> {
+    fun getPostsByUserId(getPostsRequest: GetPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val pageable = PageRequest.of(getPostsRequest.page - 1, getPostsRequest.size)
-        return postRepository.findPostsByUserUserId(user.id!!, pageable)
+        return postRepository.findPostsByUserUserId(user.id!!, pageable).content.map {
+            PostResponseDto(
+                postId = it.id!!,
+                title = it.title,
+                content = it.content,
+                email = it.user.email,
+                imageUrls = it.imageUrls,
+                spotId = it.spot.id!!
+            )
+        }
     }
 }
