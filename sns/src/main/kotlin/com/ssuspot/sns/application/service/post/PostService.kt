@@ -30,17 +30,17 @@ class PostService(
 
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
-        val posts = postRepository.findPostsByUserUserId(user.id!!, toPageable(getPostsRequest.page, getPostsRequest.size))
+        val posts = postRepository.findPostsByUserId(user.id!!, toPageable(getPostsRequest.page, getPostsRequest.size))
         return posts.content.map { it.toDto() }
     }
 
     fun getPostsBySpotId(spotId: Long, page: Int, size: Int): List<PostResponseDto> {
-        val posts = postRepository.findPostsBySpotSpotId(spotId, toPageable(page, size))
+        val posts = postRepository.findPostsBySpotId(spotId, toPageable(page, size))
         return posts.content.map { it.toDto() }
     }
 
     fun getPostsByUserId(getPostsRequest: GetUserPostsDto): List<PostResponseDto> {
-        val posts = postRepository.findPostsByUserUserId(getPostsRequest.userId, toPageable(getPostsRequest.page, getPostsRequest.size))
+        val posts = postRepository.findPostsByUserId(getPostsRequest.userId, toPageable(getPostsRequest.page, getPostsRequest.size))
         return posts.content.map { it.toDto() }
     }
 

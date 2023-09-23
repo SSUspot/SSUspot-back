@@ -4,8 +4,8 @@ import com.ssuspot.sns.domain.model.post.entity.Post
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 interface CustomPostRepository {
-    fun findPostByPostId(postId: Long): Post?
-    fun findPostsBySpotSpotId(spotId: Long, pageable: Pageable): Page<Post>
+    fun findPostById(postId: Long): Post?
+    fun findPostsBySpotId(spotId: Long, pageable: Pageable): Page<Post>
 
-    fun findPostsByUserUserId(userId: Long, pageable: Pageable): Page<Post>
+    fun findPostsByUserId(userId: Long, pageable: Pageable): Page<Post>
 }

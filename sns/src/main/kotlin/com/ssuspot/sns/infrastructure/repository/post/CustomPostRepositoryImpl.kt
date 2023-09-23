@@ -13,14 +13,14 @@ import org.springframework.stereotype.Repository
 class CustomPostRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ) : CustomPostRepository {
-    override fun findPostByPostId(postId: Long): Post? {
+    override fun findPostById(postId: Long): Post? {
         return queryFactory
             .selectFrom(QPost.post)
             .where(QPost.post.id.eq(postId))
             .fetchOne()
     }
 
-    override fun findPostsBySpotSpotId(spotId: Long, pageable: Pageable): Page<Post> {
+    override fun findPostsBySpotId(spotId: Long, pageable: Pageable): Page<Post> {
         val query = queryFactory.selectFrom(QPost.post)
             .where(QPost.post.spot.id.eq(spotId))
             .offset(pageable.offset)
@@ -38,7 +38,7 @@ class CustomPostRepositoryImpl(
         )
     }
 
-    override fun findPostsByUserUserId(userId: Long, pageable: Pageable): Page<Post> {
+    override fun findPostsByUserId(userId: Long, pageable: Pageable): Page<Post> {
         val query = queryFactory.selectFrom(QPost.post)
             .where(QPost.post.user.id.eq(userId))
             .offset(pageable.offset)
