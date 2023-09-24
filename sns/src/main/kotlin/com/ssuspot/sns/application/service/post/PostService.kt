@@ -11,7 +11,9 @@ import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.domain.model.spot.entity.Spot
 import com.ssuspot.sns.infrastructure.repository.post.PostRepository
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostService(
@@ -19,6 +21,7 @@ class PostService(
     private val spotService: SpotService,
     private val userService: UserService
 ) {
+    @Transactional
     fun createPost(createPostDto: CreatePostDto): PostResponseDto {
         val post = createPostDto.toEntity(
             spotService.findValidSpot(createPostDto.spotId),
@@ -28,19 +31,22 @@ class PostService(
         return savedPost.toDto()
     }
 
+    @Transactional(readOnly = true)
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
-        val posts = postRepository.findPostsByUserId(user.id!!, toPageable(getPostsRequest.page, getPostsRequest.size))
+        val posts = postRepository.findPostsByUserId(user.id!!, toPageableLatestSort(getPostsRequest.page, getPostsRequest.size))
         return posts.content.map { it.toDto() }
     }
 
+    @Transactional(readOnly = true)
     fun getPostsBySpotId(spotId: Long, page: Int, size: Int): List<PostResponseDto> {
-        val posts = postRepository.findPostsBySpotId(spotId, toPageable(page, size))
+        val posts = postRepository.findPostsBySpotId(spotId, toPageableLatestSort(page, size))
         return posts.content.map { it.toDto() }
     }
 
+    @Transactional(readOnly = true)
     fun getPostsByUserId(getPostsRequest: GetUserPostsDto): List<PostResponseDto> {
-        val posts = postRepository.findPostsByUserId(getPostsRequest.userId, toPageable(getPostsRequest.page, getPostsRequest.size))
+        val posts = postRepository.findPostsByUserId(getPostsRequest.userId, toPageableLatestSort(getPostsRequest.page, getPostsRequest.size))
         return posts.content.map { it.toDto() }
     }
 
@@ -50,5 +56,5 @@ class PostService(
     private fun Post.toDto(): PostResponseDto =
         PostResponseDto(id = id!!, title = title, content = content, email = user.email, imageUrls = imageUrls, spotId = spot.id!!)
 
-    private fun toPageable(page: Int, size: Int) = PageRequest.of(page - 1, size)
+    private fun toPageableLatestSort(page: Int, size: Int) = PageRequest.of(page - 1, size, Sort.Direction.DESC, "id")
 }

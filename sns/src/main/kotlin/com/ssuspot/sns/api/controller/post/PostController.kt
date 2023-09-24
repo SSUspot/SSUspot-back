@@ -10,6 +10,7 @@ import com.ssuspot.sns.infrastructure.security.UserPrincipal
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 class PostController(
     private val postService: PostService
 ) {
-    @GetMapping("/api/posts/user/me")
+    @GetMapping("/api/posts/users/me")
     fun getMyPosts(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
@@ -41,12 +42,12 @@ class PostController(
     }
 
     // Get specific user's posts
-    @GetMapping("/api/posts/user/{userId}")
+    @GetMapping("/api/posts/users/{userId}")
     fun getPostsByUserId(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
         @RequestParam("sort", defaultValue = "postId") sort: String,
-        @RequestParam("userId") userId: Long
+        @PathVariable("userId") userId: Long
     ): ResponseEntity<List<PostResponse>> {
         val posts = postService.getPostsByUserId(GetUserPostsDto(page, size, sort, userId))
         return ResponseEntity.ok(
@@ -63,8 +64,31 @@ class PostController(
         )
     }
 
+    // Get specific spot's posts
+    @GetMapping("/api/posts/spots/{spotId}")
+    fun getPostsBySpotId(
+        @RequestParam("page", defaultValue = "1") page: Int,
+        @RequestParam("size", defaultValue = "10") size: Int,
+        @RequestParam("sort", defaultValue = "postId") sort: String,
+        @PathVariable("spotId") spotId: Long
+    ): ResponseEntity<List<PostResponse>> {
+        val posts = postService.getPostsBySpotId(spotId, page, size)
+        return ResponseEntity.ok(
+            posts.map {
+                PostResponse(
+                    it.id,
+                    it.title,
+                    it.content,
+                    it.email,
+                    it.imageUrls,
+                    it.spotId
+                )
+            }
+        )
+    }
 
-    @PostMapping("/api/post")
+
+    @PostMapping("/api/posts")
     fun createPost(
         @RequestBody request: CreatePostRequest,
         @AuthenticationPrincipal userDetails: UserPrincipal

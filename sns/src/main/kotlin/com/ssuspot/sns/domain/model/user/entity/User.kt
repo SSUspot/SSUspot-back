@@ -40,7 +40,7 @@ class User(
         var email: String,
 
         @field:NotNull
-        @field:Column(length = 64, name = "nickname", unique = true)
+        @field:Column(length = 64, name = "nickname")
         var nickname: String,
 
         @field:Column(name = "profile_message")

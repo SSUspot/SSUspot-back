@@ -2,9 +2,11 @@ package com.ssuspot.sns.application.service.spot
 
 import com.ssuspot.sns.application.dto.spot.CreateSpotDto
 import com.ssuspot.sns.application.dto.spot.CreateSpotResponseDto
+import com.ssuspot.sns.domain.exceptions.spot.SpotNotFoundException
 import com.ssuspot.sns.domain.model.spot.entity.Spot
 import com.ssuspot.sns.infrastructure.repository.spot.SpotRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class SpotService(
@@ -33,8 +35,14 @@ class SpotService(
         )
     }
 
+    //temp get all spot method
+    @Transactional(readOnly = true)
+    fun getAllSpot(): List<Spot> {
+        return spotRepository.findAll()
+    }
+
     fun findValidSpot(spotId: Long): Spot {
         return spotRepository.findById(spotId)
-                .orElseThrow { throw Exception("spot not found") }
+                .orElseThrow { throw SpotNotFoundException() }
     }
 }
