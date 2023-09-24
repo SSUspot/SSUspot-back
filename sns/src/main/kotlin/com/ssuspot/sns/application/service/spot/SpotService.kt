@@ -42,7 +42,6 @@ class SpotService(
     }
 
     fun findValidSpot(spotId: Long): Spot {
-        return spotRepository.findById(spotId)
-                .orElseThrow { throw SpotNotFoundException() }
+        return spotRepository.findById(spotId).orElseThrow { SpotNotFoundException() }
     }
 }
