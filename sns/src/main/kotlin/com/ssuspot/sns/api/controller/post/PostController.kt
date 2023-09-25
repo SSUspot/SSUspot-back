@@ -20,6 +20,23 @@ import org.springframework.web.bind.annotation.RestController
 class PostController(
     private val postService: PostService
 ) {
+    @GetMapping("/api/posts/{id}")
+    fun getSpecificPost(
+        @PathVariable id: Long
+    ): ResponseEntity<PostResponse>{
+        val post = postService.getPostById(id)
+        return ResponseEntity.ok().body(
+            PostResponse(
+                post.id,
+                post.title,
+                post.content,
+                post.email,
+                post.imageUrls,
+                post.spotId
+            )
+        )
+    }
+
     @GetMapping("/api/posts/users/me")
     fun getMyPosts(
         @RequestParam("page", defaultValue = "1") page: Int,
