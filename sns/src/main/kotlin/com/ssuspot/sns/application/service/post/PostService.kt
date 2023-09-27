@@ -26,7 +26,7 @@ class PostService(
     fun createPost(createPostDto: CreatePostDto): PostResponseDto {
         val post = createPostDto.toEntity(
             spotService.findValidSpot(createPostDto.spotId),
-            userService.findValidUserByEmail(createPostDto.email)
+            userService.findValidUserByEmail(createPostDto.userEmail)
         )
         val savedPost = postRepository.save(post)
         return savedPost.toDto()
@@ -63,8 +63,19 @@ class PostService(
         return posts.content.map { it.toDto() }
     }
 
+    @Transactional(readOnly = true)
+    fun findValidPostById(postId: Long): Post {
+        return postRepository.findPostById(postId) ?: throw PostNotFoundException()
+    }
+
     private fun CreatePostDto.toEntity(spot: Spot, user: User): Post =
-        Post(title = title, user = user, content = content, imageUrls = imageUrls, spot = spot)
+        Post(
+            title = title,
+            user = user,
+            content = content,
+            imageUrls = imageUrls,
+            spot = spot
+        )
 
     private fun Post.toDto(): PostResponseDto =
         PostResponseDto(
