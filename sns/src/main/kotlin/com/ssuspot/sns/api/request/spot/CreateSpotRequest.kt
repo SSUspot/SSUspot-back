@@ -1,6 +1,6 @@
 package com.ssuspot.sns.api.request.spot
 
-class CreateSpotRequest(
+data class CreateSpotRequest(
         val spotName: String,
         val spotThumbnailImageLink:String,
         val spotLevel: Int,

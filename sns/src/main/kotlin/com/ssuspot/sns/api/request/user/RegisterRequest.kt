@@ -2,7 +2,7 @@ package com.ssuspot.sns.api.request.user
 
 import javax.validation.constraints.Pattern
 
-class RegisterRequest (
+data class RegisterRequest (
         val email: String,
         @field:Pattern(regexp = PASSWORD_REGEX, message = "유효하지 않은 비밀번호입니다.")
         val password: String,

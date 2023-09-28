@@ -2,7 +2,7 @@ package com.ssuspot.sns.api.response.user
 
 import com.ssuspot.sns.application.dto.user.AuthTokenDto
 
-class LoginResponse(
+data class LoginResponse(
         val accessToken: String,
         val accessTokenExpiredIn: Long,
         val refreshToken: String,

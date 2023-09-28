@@ -3,7 +3,7 @@ package com.ssuspot.sns.api.response.common
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
-class ErrorResponse(
+data class ErrorResponse(
         val timestamp: LocalDateTime,
         val status: Int,
         val error: String,

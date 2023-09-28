@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.user
 
-class RegisterDto(
+data class RegisterDto(
         val email: String,
         val password: String,
         val userName: String,
