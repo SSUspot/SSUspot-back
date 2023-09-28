@@ -13,6 +13,6 @@ data class LoginResponse(
                     token.accessToken.token,
                     token.accessToken.expiredIn,
                     token.refreshToken!!.token,
-                    token.refreshToken!!.expiredIn
+                    token.refreshToken.expiredIn
             )
 }
