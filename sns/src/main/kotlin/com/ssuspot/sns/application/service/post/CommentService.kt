@@ -4,6 +4,7 @@ import com.ssuspot.sns.application.dto.post.CommentResponseDto
 import com.ssuspot.sns.application.dto.post.CreateCommentDto
 import com.ssuspot.sns.application.dto.post.GetCommentDto
 import com.ssuspot.sns.application.service.user.UserService
+import com.ssuspot.sns.domain.exceptions.post.CommentNotFoundException
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.user.entity.User
@@ -38,6 +39,14 @@ class CommentService(
         return comments.content.map { it.toDto() }
     }
 
+    // get specific comment by comment id
+    @Transactional(readOnly = true)
+    fun getCommentById(
+        commentId: Long
+    ): CommentResponseDto {
+        val comment = commentRepository.findCommentById(commentId) ?: throw CommentNotFoundException()
+        return comment.toDto()
+    }
 
     private fun CreateCommentDto.toEntity(post: Post, user: User): Comment =
         Comment(

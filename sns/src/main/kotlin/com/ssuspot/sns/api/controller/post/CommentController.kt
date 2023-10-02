@@ -39,6 +39,21 @@ class CommentController(
         )
     }
 
+    @GetMapping("/api/comments/{commentId}")
+    fun getCommentById(
+        @PathVariable commentId: Long
+    ): ResponseEntity<CommentResponse> {
+        val comment = commentService.getCommentById(commentId)
+        return ResponseEntity.ok(
+            CommentResponse(
+                id = comment.id,
+                postId = comment.postId,
+                userEmail = comment.userEmail,
+                content = comment.content,
+            )
+        )
+    }
+
     @PostMapping("/api/posts/{postId}/comments")
     fun createComment(
         @PathVariable postId: Long,

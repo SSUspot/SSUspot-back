@@ -4,8 +4,11 @@
   <component name="GradleSettings">
     <option name="linkedExternalProjectsSettings">
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="false" />
+        <option name="testRunner" value="PLATFORM" />
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/admin" />
-        <option name="gradleJvm" value="corretto-19" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-8.3" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/admin" />
@@ -13,8 +16,11 @@
         </option>
       </GradleProjectSettings>
       <GradleProjectSettings>
+        <option name="delegatedBuild" value="false" />
+        <option name="testRunner" value="PLATFORM" />
+        <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$/sns" />
-        <option name="gradleJvm" value="corretto-19" />
+        <option name="gradleHome" value="$PROJECT_DIR$/../../../../Gradle/gradle-8.3" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$/sns" />
