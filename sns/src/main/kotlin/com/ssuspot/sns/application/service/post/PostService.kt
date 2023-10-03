@@ -82,7 +82,7 @@ class PostService(
             id = id!!,
             title = title,
             content = content,
-            email = user.email,
+            nickname = user.nickname,
             imageUrls = imageUrls,
             spotId = spot.id!!
         )
