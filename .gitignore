@@ -1,0 +1,7 @@
+.gitignore
+admin/.gradle
+admin/.idea
+admin/bulid
+sns/.gradle
+sns/.idea
+sns/bulid
