@@ -32,7 +32,7 @@ class CommentController(
                 CommentResponse(
                     id = it.id,
                     postId = it.postId,
-                    userEmail = it.userEmail,
+                    userEmail = it.nickname,
                     content = it.content,
                 )
             }
@@ -71,7 +71,7 @@ class CommentController(
             CommentResponse(
                 id = savedComment.id,
                 postId = savedComment.postId,
-                userEmail = savedComment.userEmail,
+                userEmail = savedComment.nickname,
                 content = savedComment.content,
             )
         )

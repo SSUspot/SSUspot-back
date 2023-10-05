@@ -4,7 +4,7 @@ data class PostResponseDto(
     val id: Long,
     val title: String,
     val content: String,
-    val email: String,
+    val nickname: String,
     val imageUrls: List<String>,
     val spotId: Long,
 )

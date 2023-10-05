@@ -30,7 +30,7 @@ class PostController(
                 post.id,
                 post.title,
                 post.content,
-                post.email,
+                post.nickname,
                 post.imageUrls,
                 post.spotId
             )
@@ -50,7 +50,7 @@ class PostController(
                     it.id,
                     it.title,
                     it.content,
-                    it.email,
+                    it.nickname,
                     it.imageUrls,
                     it.spotId
                 )
@@ -73,7 +73,7 @@ class PostController(
                     it.id,
                     it.title,
                     it.content,
-                    it.email,
+                    it.nickname,
                     it.imageUrls,
                     it.spotId
                 )
@@ -96,7 +96,7 @@ class PostController(
                     it.id,
                     it.title,
                     it.content,
-                    it.email,
+                    it.nickname,
                     it.imageUrls,
                     it.spotId
                 )
@@ -124,7 +124,7 @@ class PostController(
                 savedPost.id,
                 savedPost.title,
                 savedPost.content,
-                savedPost.email,
+                savedPost.nickname,
                 savedPost.imageUrls,
                 savedPost.spotId
             )

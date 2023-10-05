@@ -59,7 +59,7 @@ class CommentService(
         CommentResponseDto(
             id = id!!,
             postId = post.id!!,
-            userEmail = user.email,
+            nickname = user.nickname,
             content = content,
         )
 
