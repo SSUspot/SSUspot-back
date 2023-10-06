@@ -31,6 +31,9 @@ class Post(
     @field:Column(name = "like_count")
     var likeCount: Long = 0,
 
+    @field:Column(name = "rating")
+    var rating: Double? = 0.0,
+
     @field:ElementCollection
     var imageUrls: List<String> = listOf(),
 
