@@ -1,12 +1,5 @@
 version: '3.6'
 services:
-  sns:
-    container_name: ssuspot_sns_server
-    image: quintuplets2000/ssuspot_sns:latest
-    environment:
-      SSUSPOT_SNS_DB_URL: jdbc:postgresql://ssuspot_sns_db:5432/ssuspot_sns
-      SSUSPOT_SNS_DB_USERNAME: ssuspot
-      SSUSPOT_SNS_DB_PASSWORD: testpassword1
   db:
     container_name: ssuspot_sns_db
     image: postgres:13-alpine
