@@ -3,7 +3,7 @@ package com.ssuspot.sns.application.dto.common
 import org.springframework.http.HttpStatus
 import java.time.LocalDateTime
 
-class ErrorDto(
+data class ErrorDto(
         val timestamp: LocalDateTime,
         val status: Int,
         val error: String,
