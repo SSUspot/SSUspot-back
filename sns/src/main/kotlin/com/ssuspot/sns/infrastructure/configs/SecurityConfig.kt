@@ -23,7 +23,6 @@ class SecurityConfig(
     private val jwtTokenProvider: JwtTokenProvider,
     private val objectMapper: ObjectMapper,
 ) {
-
     @Bean
     @Throws(Exception::class)
     fun filterChain(http: HttpSecurity): SecurityFilterChain {

@@ -1,7 +1,7 @@
 package com.ssuspot.sns.application.service.spot
 
 import com.ssuspot.sns.application.dto.spot.CreateSpotDto
-import com.ssuspot.sns.application.dto.spot.CreateSpotResponseDto
+import com.ssuspot.sns.application.dto.spot.SpotResponseDto
 import com.ssuspot.sns.domain.exceptions.spot.SpotNotFoundException
 import com.ssuspot.sns.domain.model.spot.entity.Spot
 import com.ssuspot.sns.infrastructure.repository.spot.SpotRepository
@@ -15,7 +15,7 @@ class SpotService(
     //create spot
     fun createSpot(
             createSpotDto: CreateSpotDto
-    ): CreateSpotResponseDto {
+    ): SpotResponseDto {
         val savedSpot = spotRepository.save(
                 Spot(
                         spotName = createSpotDto.spotName,
@@ -25,13 +25,25 @@ class SpotService(
                         longitude = createSpotDto.longitude
                 )
         )
-        return CreateSpotResponseDto(
+        return SpotResponseDto(
                 savedSpot.id,
                 savedSpot.spotName,
                 savedSpot.spotThumbnailImageLink,
                 savedSpot.spotLevel,
                 savedSpot.latitude,
                 savedSpot.longitude
+        )
+    }
+
+    fun getSpot(spotId: Long): SpotResponseDto{
+        val foundSpot = findValidSpot(spotId)
+        return SpotResponseDto(
+                foundSpot.id,
+                foundSpot.spotName,
+                foundSpot.spotThumbnailImageLink,
+                foundSpot.spotLevel,
+                foundSpot.latitude,
+                foundSpot.longitude
         )
     }
 
@@ -42,6 +54,6 @@ class SpotService(
     }
 
     fun findValidSpot(spotId: Long): Spot {
-        return spotRepository.findById(spotId).orElseThrow { SpotNotFoundException() }
+        return spotRepository.findSpotById(spotId) ?: throw SpotNotFoundException()
     }
 }

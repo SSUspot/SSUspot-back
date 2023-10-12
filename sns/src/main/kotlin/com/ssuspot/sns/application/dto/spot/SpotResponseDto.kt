@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.spot
 
-data class CreateSpotResponseDto(
+data class SpotResponseDto(
         val id: Long?,
         val spotName: String,
         val spotThumbnailImageLink: String,
