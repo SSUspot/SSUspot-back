@@ -19,4 +19,6 @@ class PostLike(
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "post_id")
     val post: Post,
-): BaseTimeEntity()
+): BaseTimeEntity(){
+    constructor(user: User, post: Post): this(null, user, post)
+}
