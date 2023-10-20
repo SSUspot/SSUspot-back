@@ -11,8 +11,8 @@ class Image(
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null,
 
-    @field:Column(name = "url")
-    var url: String,
+    @field:Column(name = "image_url")
+    var imageUrl: String,
 
     @field:Column(name = "latitude")
     var latitude: Double,
