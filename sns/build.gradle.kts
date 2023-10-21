@@ -1,7 +1,5 @@
 import com.ewerk.gradle.plugins.tasks.QuerydslCompile
-import org.gradle.api.internal.artifacts.dsl.dependencies.DependenciesExtensionModule.module
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
 
 plugins {
 	id("org.springframework.boot") version "2.7.7"
@@ -60,6 +58,11 @@ dependencies {
 	implementation("com.querydsl:querydsl-jpa:5.0.0")
 	kapt("com.querydsl:querydsl-apt:5.0.0:jpa")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+
+	// amazon
+	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
+	implementation("com.amazonaws:aws-java-sdk-core:1.12.385")
+	implementation("com.amazonaws:aws-java-sdk-s3:1.12.385")
 }
 
 tasks.withType<KotlinCompile> {
