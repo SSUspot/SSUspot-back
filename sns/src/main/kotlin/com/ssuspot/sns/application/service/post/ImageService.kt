@@ -1,5 +1,7 @@
 package com.ssuspot.sns.application.service.post
 
+import com.amazonaws.services.s3.AmazonS3
+import com.amazonaws.services.s3.model.PutObjectRequest
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.infrastructure.repository.post.ImageRepository
 import org.springframework.stereotype.Service
@@ -9,6 +11,7 @@ import java.io.FileOutputStream
 
 @Service
 class ImageService(
+    private val s3Client: AmazonS3,
     private val userService: UserService,
     private val imageRepository: ImageRepository
 ) {
