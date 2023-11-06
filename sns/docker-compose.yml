@@ -1,7 +1,7 @@
 version: '3.6'
 services:
   db:
-    container_name: ssuspot_sns_db
+    container_name: ssuspot_sns_database
     image: postgres:13-alpine
     environment:
       POSTGRES_PASSWORD: testpassword1
