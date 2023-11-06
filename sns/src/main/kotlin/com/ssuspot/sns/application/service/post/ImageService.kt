@@ -15,6 +15,7 @@ class ImageService(
     private val userService: UserService,
     private val imageRepository: ImageRepository
 ) {
+    /*
     fun uploadFile(files: List<MultipartFile>): StorageResponseDto{
         val imageUrls = mutableListOf<String>()
 
@@ -37,4 +38,6 @@ class ImageService(
         }
         return convertedFile
     }
+
+     */
 }
