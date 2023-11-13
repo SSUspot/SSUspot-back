@@ -22,4 +22,6 @@ enum class ErrorCode(
     SPOT_NOT_EXISTS("존재하지 않는 스팟입니다"),
 
     RATE_LIMIT_EXCEEDED("요청 횟수가 너무 많습니다"),
+    FILE_NOT_FOUND("파일을 찾을 수 없습니다"),
+
 }
