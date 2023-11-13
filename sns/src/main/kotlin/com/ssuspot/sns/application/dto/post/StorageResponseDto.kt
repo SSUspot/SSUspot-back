@@ -1,6 +1,6 @@
-package com.ssuspot.sns.api.response.post
+package com.ssuspot.sns.application.dto.post
 
-class StorageResponseDto(
+data class StorageResponseDto(
     val imageUrls:String
 ) {
     private val imageUrlList:String = imageUrls

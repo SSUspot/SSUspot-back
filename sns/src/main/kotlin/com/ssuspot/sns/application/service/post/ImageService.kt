@@ -2,7 +2,7 @@ package com.ssuspot.sns.application.service.post
 
 import com.amazonaws.services.s3.AmazonS3
 import com.amazonaws.services.s3.model.PutObjectRequest
-import com.ssuspot.sns.api.response.post.StorageResponseDto
+import com.ssuspot.sns.application.dto.post.StorageResponseDto
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.infrastructure.repository.post.ImageRepository
 import org.springframework.beans.factory.annotation.Value

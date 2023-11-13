@@ -91,6 +91,15 @@ class UserService(
         // 캐시 삭제
     }
 
+    fun getValidUser(email: String): User {
+        return userRepository.findByEmail(email) ?: throw UserNotFoundException()
+    }
+    fun getValidUserByEmail(email: String): User {
+        return userRepository.findByEmail(email) ?: throw UserNotFoundException()
+    }
+    fun getValidUser(userId: Long): User {
+        return userRepository.findById(userId).orElseThrow { UserNotFoundException() }
+    }
     private fun createUser(
         registerDto: RegisterDto
     ): User {
@@ -105,6 +114,4 @@ class UserService(
             )
         )
     }
-
-
 }

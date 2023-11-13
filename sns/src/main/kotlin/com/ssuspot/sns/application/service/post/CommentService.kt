@@ -62,6 +62,8 @@ class CommentService(
             nickname = user.nickname,
             content = content,
         )
-
+    fun findValidCommentByCommentId(commentId: Long): Comment {
+        return commentRepository.findCommentById(commentId) ?: throw CommentNotFoundException()
+    }
     private fun toPageableLatestSort(page: Int, size: Int) = PageRequest.of(page - 1, size, Sort.Direction.DESC, "id")
 }
