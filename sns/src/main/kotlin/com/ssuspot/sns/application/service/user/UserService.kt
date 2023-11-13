@@ -26,6 +26,10 @@ class UserService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
+    fun getUserInfo(email: String): User {
+        return userRepository.findByEmail(email)
+            ?: throw UserNotFoundException()
+    }
     fun registerProcess(
         registerDto: RegisterDto
     ): RegisterResponseDto {

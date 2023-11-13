@@ -3,7 +3,7 @@ package com.ssuspot.sns.api.response.user
 import com.fasterxml.jackson.annotation.JsonInclude
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class RegisterResponse (
+data class UserResponse (
     val id: Long,
     val email: String,
     val userName: String,

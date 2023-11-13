@@ -5,9 +5,12 @@ import com.ssuspot.sns.application.dto.user.RegisterDto
 import com.ssuspot.sns.api.request.user.LoginRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
-import com.ssuspot.sns.api.response.user.RegisterResponse
+import com.ssuspot.sns.api.response.user.UserResponse
 import com.ssuspot.sns.application.service.user.UserService
+import com.ssuspot.sns.infrastructure.security.UserPrincipal
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.annotation.AuthenticationPrincipal
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -16,10 +19,26 @@ import org.springframework.web.bind.annotation.RestController
 class UserController (
         val userService: UserService
 ){
+    @GetMapping("/api/users/")
+    fun getUserInfo(
+        @AuthenticationPrincipal userDetails: UserPrincipal
+    ): ResponseEntity<UserResponse>{
+        val user = userService.getUserInfo(userDetails.username)
+        return ResponseEntity.ok().body(
+            UserResponse(
+                    user.id!!,
+                    user.email,
+                    user.userName,
+                    user.nickname,
+                    user.profileMessage,
+                    user.profileImageLink
+            )
+        )
+    }
     @PostMapping("/api/users/register")
     fun register(
         @RequestBody request: RegisterRequest
-    ):ResponseEntity<RegisterResponse>{
+    ):ResponseEntity<UserResponse>{
         val savedUser = userService.registerProcess(
                 RegisterDto(
                         request.email,
@@ -31,7 +50,7 @@ class UserController (
                 )
         )
         return ResponseEntity.ok().body(
-            RegisterResponse(
+            UserResponse(
                     savedUser.id,
                     savedUser.email,
                     savedUser.userName,
