@@ -8,6 +8,7 @@ enum class ErrorCode(
     NOT_EXISTS_USER("존재하지 않는 유저입니다"),
     ALREADY_EXISTS_USER("이미 존재하는 유저입니다"),
     INVALID_USER_PASSWORD("이메일 혹은 비밀번호가 틀렸습니다"),
+    INVALID_TOKEN("유효하지 않은 토큰입니다"),
 
     NOT_EXISTS_POST("존재하지 않는 게시글입니다"),
     INVALID_TEXT("유효하지 않은 텍스트입니다"),

@@ -2,12 +2,12 @@ package com.ssuspot.sns.api.controller.post
 
 import com.ssuspot.sns.api.request.post.CreateCommentRequest
 import com.ssuspot.sns.api.response.post.CommentResponse
+import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.CreateCommentDto
 import com.ssuspot.sns.application.dto.post.GetCommentDto
 import com.ssuspot.sns.application.service.post.CommentService
-import com.ssuspot.sns.infrastructure.security.UserPrincipal
+import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -58,12 +58,12 @@ class CommentController(
     fun createComment(
         @PathVariable postId: Long,
         @RequestBody createCommentRequest: CreateCommentRequest,
-        @AuthenticationPrincipal userDetails: UserPrincipal
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<CommentResponse> {
         val savedComment = commentService.createComment(
             CreateCommentDto(
                 postId = postId,
-                userEmail = userDetails.username,
+                userEmail = authInfo.email,
                 content = createCommentRequest.content,
             )
         )

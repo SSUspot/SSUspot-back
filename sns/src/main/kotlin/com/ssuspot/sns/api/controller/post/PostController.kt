@@ -3,12 +3,12 @@ package com.ssuspot.sns.api.controller.post
 import com.ssuspot.sns.application.dto.post.CreatePostDto
 import com.ssuspot.sns.api.request.post.CreatePostRequest
 import com.ssuspot.sns.api.response.post.PostResponse
+import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.GetMyPostsDto
 import com.ssuspot.sns.application.dto.post.GetUserPostsDto
 import com.ssuspot.sns.application.service.post.PostService
-import com.ssuspot.sns.infrastructure.security.UserPrincipal
+import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -41,9 +41,9 @@ class PostController(
     fun getMyPosts(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
-        @AuthenticationPrincipal userDetails: UserPrincipal
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
-        val posts = postService.getMyPosts(GetMyPostsDto(page, size, userDetails.username))
+        val posts = postService.getMyPosts(GetMyPostsDto(page, size, authInfo.email))
         return ResponseEntity.ok(
             posts.map {
                 PostResponse(
@@ -108,13 +108,13 @@ class PostController(
     @PostMapping("/api/posts")
     fun createPost(
         @RequestBody request: CreatePostRequest,
-        @AuthenticationPrincipal userDetails: UserPrincipal
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<PostResponse> {
         val savedPost = postService.createPost(
             CreatePostDto(
                 request.title,
                 request.content,
-                userDetails.username,
+                authInfo.email,
                 request.imageUrls,
                 request.spotId
             )

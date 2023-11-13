@@ -3,7 +3,6 @@ package com.ssuspot.sns.api.controller.post
 import com.ssuspot.sns.api.response.post.LikeResponse
 import com.ssuspot.sns.application.dto.post.LikeDto
 import com.ssuspot.sns.application.service.post.PostLikeService
-import com.ssuspot.sns.infrastructure.security.UserPrincipal
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
@@ -33,5 +32,4 @@ class PostLikeController(
             )
         )
     }
-
 }

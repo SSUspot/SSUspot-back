@@ -6,10 +6,10 @@ import com.ssuspot.sns.api.request.user.LoginRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
 import com.ssuspot.sns.api.response.user.UserResponse
+import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.service.user.UserService
-import com.ssuspot.sns.infrastructure.security.UserPrincipal
+import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
@@ -21,9 +21,9 @@ class UserController (
 ){
     @GetMapping("/api/users/")
     fun getUserInfo(
-        @AuthenticationPrincipal userDetails: UserPrincipal
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<UserResponse>{
-        val user = userService.getUserInfo(userDetails.username)
+        val user = userService.getUserInfo(authInfo.email)
         return ResponseEntity.ok().body(
             UserResponse(
                     user.id!!,

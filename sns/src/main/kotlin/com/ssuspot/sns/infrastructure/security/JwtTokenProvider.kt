@@ -1,24 +1,25 @@
 package com.ssuspot.sns.infrastructure.security
 
+
 import com.ssuspot.sns.application.dto.common.JwtTokenDto
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import io.jsonwebtoken.io.DecodingException
 import io.jsonwebtoken.security.Keys
-import javax.servlet.http.HttpServletRequest
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Component
 import java.util.*
 import javax.crypto.SecretKey
+import javax.servlet.http.HttpServletRequest
 
 @Component
 open class JwtTokenProvider(
-        @Value("\${app.jwt.secret}") private val jwtSecret: String,
-        @Value("\${app.jwt.accessTokenExpirationMS}") private val accessTokenValidMilSecond: Long = 0,
-        @Value("\${app.jwt.refreshTokenExpirationMS}") private val refreshTokenValidMilSecond: Long = 0
+    @Value("\${app.jwt.secret}") private val jwtSecret: String,
+    @Value("\${app.jwt.accessTokenExpirationMS}") private val accessTokenValidMilSecond: Long = 0,
+    @Value("\${app.jwt.refreshTokenExpirationMS}") private val refreshTokenValidMilSecond: Long = 0
 ) {
 
     private val secretKey: SecretKey = Keys.hmacShaKeyFor(jwtSecret.toByteArray())
@@ -34,11 +35,11 @@ open class JwtTokenProvider(
         val now = Date()
         val expiredIn = now.time + tokenValidMilSecond
         val token = Jwts.builder()
-                .claim("email", email)
-                .setIssuedAt(now)
-                .setExpiration(Date(expiredIn))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact()
+            .claim("email", email)
+            .setIssuedAt(now)
+            .setExpiration(Date(expiredIn))
+            .signWith(secretKey, SignatureAlgorithm.HS256)
+            .compact()
 
         return JwtTokenDto(token, expiredIn)
     }
@@ -48,10 +49,9 @@ open class JwtTokenProvider(
         token = when {
             token == null -> return null
             token.contains("Bearer") -> token.replace(
-                    "Bearer ",
-                    ""
+                "Bearer ",
+                ""
             )
-
             else -> throw DecodingException("")
         }
         return getClaimsFromToken(token)
@@ -59,21 +59,19 @@ open class JwtTokenProvider(
 
     fun getClaimsFromToken(token: String): Claims? {
         return Jwts.parser()
-                .setSigningKey(secretKey)
-                .parseClaimsJws(token)
-                .body
+            .setSigningKey(secretKey)
+            .parseClaimsJws(token)
+            .body
     }
 
     fun getAuthentication(claims: Claims): Authentication {
-        val email = claims["email"] as String
-        val userPrincipal = UserPrincipal(email)
-        return UsernamePasswordAuthenticationToken(userPrincipal, "", listOf()) // 권한 설정
+        return UsernamePasswordAuthenticationToken(claims["email"], null, null)
     }
 
     fun getUserEmailFromToken(token: String): String {
         val resolvedToken = if( token.contains("Bearer")) {token.replace(
-                "Bearer ",
-                ""
+            "Bearer ",
+            ""
         )} else token
         println("resolvedToken: $resolvedToken")
         return getClaimsFromToken(resolvedToken)!!["email"] as String
