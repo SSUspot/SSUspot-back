@@ -71,6 +71,12 @@ tasks.withType<KotlinCompile> {
 		jvmTarget = "17"
 	}
 }
+tasks {
+	val compileQuerydsl by getting
+	val compileKotlin by getting {
+		dependsOn(compileQuerydsl)
+	}
+}
 
 tasks.withType<Test> {
 	useJUnitPlatform()
