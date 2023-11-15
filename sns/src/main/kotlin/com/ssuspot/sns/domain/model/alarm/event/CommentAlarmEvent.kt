@@ -1,6 +1,6 @@
-package com.ssuspot.sns.application.dto.alarm
+package com.ssuspot.sns.domain.model.alarm.event
 
-data class AlarmDto(
+class CommentAlarmEvent(
     val postUserId: Long,
     val postId: Long,
     val commentUserId: Long,

@@ -6,7 +6,6 @@ import com.ssuspot.sns.application.dto.post.LikeDto
 import com.ssuspot.sns.application.service.post.PostLikeService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
-import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController

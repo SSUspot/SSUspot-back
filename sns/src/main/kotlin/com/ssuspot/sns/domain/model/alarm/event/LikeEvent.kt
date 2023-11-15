@@ -1,8 +1,7 @@
 package com.ssuspot.sns.domain.model.alarm.event
 
-class AlarmEvent(
+class LikeEvent(
     val postUserId: Long,
     val postId: Long,
-    val commentUserId: Long,
-    val commentId: Long,
+    val likeUserId: Long,
 )

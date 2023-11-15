@@ -7,10 +7,10 @@ import javax.persistence.*
 
 @Entity
 @Table(name = "alarms")
-class Alarm(
+class CommentAlarm(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
-    val alarmId: Long? = 0L,
+    val commentAlarmId: Long? = 0L,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "user_id", insertable = false, updatable = false)

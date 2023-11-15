@@ -5,7 +5,7 @@ import com.ssuspot.sns.application.dto.post.CreateCommentDto
 import com.ssuspot.sns.application.dto.post.GetCommentDto
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.domain.exceptions.post.CommentNotFoundException
-import com.ssuspot.sns.domain.model.alarm.event.AlarmEvent
+import com.ssuspot.sns.domain.model.alarm.event.CommentAlarmEvent
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.user.entity.User
@@ -31,13 +31,13 @@ class CommentService(
         )
         val savedComment = commentRepository.save(comment)
         if(savedComment.post.user.id != savedComment.user.id){
-            val alarmEvent = AlarmEvent(
+            val commentAlarmEvent = CommentAlarmEvent(
                 postUserId = savedComment.post.user.id!!,
                 postId = savedComment.post.id!!,
                 commentUserId = savedComment.user.id!!,
                 commentId = savedComment.id!!
             )
-            applicationEventPublisher.publishEvent(alarmEvent)
+            applicationEventPublisher.publishEvent(commentAlarmEvent)
         }
         return savedComment.toDto()
     }
