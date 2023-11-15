@@ -20,8 +20,6 @@ class S3Configuration(
     @Value("\${cloud.aws.region.static}")
     private val region: String
 ) {
-
-
     @Bean
     @Primary
     fun generateS3client(): AmazonS3 {

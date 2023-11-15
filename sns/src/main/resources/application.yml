@@ -12,16 +12,29 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
+  spring:
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: 10MB # 한개 파일의 최대 사이즈 (default: 1MB)
+        max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
 
 app:
   jwt:
     secret: ${SSUSPOT_JWT_SECRET}
     accessTokenExpirationMS: 86400000
     refreshTokenExpirationMS: 2592000000
-  bucket:
-    accessKey: ${SSUSPOT_S3_ACCESS_KEY}
-    secretKey: ${SSUSPOT_S3_SECRET_KEY}
-    region: ${SSUSPOT_S3_REGION}
+cloud:
+  aws:
+    s3:
+      bucket: ${SSUSPOT_S3_BUCKET_NAME}
+    credentials:
+      access-key: ${SSUSPOT_S3_ACCESS_KEY}
+      secret-key: ${SSUSPOT_S3_SECRET_KEY}
+    region:
+      static: ${SSUSPOT_S3_REGION}
+    stack:
+      auto: false
 
 logging:
   level:

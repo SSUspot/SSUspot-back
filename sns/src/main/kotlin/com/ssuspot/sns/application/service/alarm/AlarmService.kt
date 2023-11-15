@@ -27,7 +27,7 @@ class AlarmService(
         val comment = commentService.findValidCommentByCommentId(requestDto.commentId)
         alarmRepository.save(
             Alarm(
-                articleUser = articleUser,
+                postUser = articleUser,
                 commentUser = commentUser,
                 post = post,
                 comment = comment
@@ -39,7 +39,7 @@ class AlarmService(
     fun getAlarms(page: Int, size: Int, userId: String): List<AlarmResponseDto> {
         val pageable: PageRequest = PageRequest.of(page - 1, size, Sort.Direction.DESC, "alarmId")
         val user = userService.getValidUserByEmail(userId)
-        val alarms = alarmRepository.findAlarmByArticleUserUserId(user.id!!, pageable)
+        val alarms = alarmRepository.findByPostUserId(user.id!!, pageable)
         return alarms.content.map {
             val post = postService.findValidPostById(it.post.id!!)
             val comment = commentService.findValidCommentByCommentId(it.comment.id!!)

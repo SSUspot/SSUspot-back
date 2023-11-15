@@ -13,15 +13,15 @@ class Alarm(
     val alarmId: Long? = 0L,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
-    @field:JoinColumn(name = "article_user_id")
-    var articleUser: User,
+    @field:JoinColumn(name = "user_id", insertable = false, updatable = false)
+    var postUser: User,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "post_id")
     var post: Post,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
-    @field:JoinColumn(name = "comment_user_id")
+    @field:JoinColumn(name = "user_id", insertable = false, updatable = false)
     var commentUser: User,
 
     @field:OneToOne(fetch = FetchType.LAZY)

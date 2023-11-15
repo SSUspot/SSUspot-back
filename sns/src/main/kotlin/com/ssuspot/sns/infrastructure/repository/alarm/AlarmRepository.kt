@@ -6,5 +6,6 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface AlarmRepository: JpaRepository<Alarm, Long>{
-    fun findAlarmByArticleUserUserId(userId: Long, pageable: Pageable): Page<Alarm>
+    //find alarm By PostUser UserId
+    fun findByPostUserId(id: Long, pageable: Pageable): Page<Alarm>
 }

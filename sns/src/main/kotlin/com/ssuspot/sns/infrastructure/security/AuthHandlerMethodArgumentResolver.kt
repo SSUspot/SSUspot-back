@@ -23,7 +23,6 @@ open class AuthHandlerMethodArgumentResolver: HandlerMethodArgumentResolver {
         binderFactory: WebDataBinderFactory?
     ): Any {
         val authenticationToken = SecurityContextHolder.getContext().authentication
-
         return AuthInfo(
             authenticationToken.principal.toString(),
         )
