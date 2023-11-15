@@ -5,10 +5,12 @@ import com.ssuspot.sns.application.dto.post.CreateCommentDto
 import com.ssuspot.sns.application.dto.post.GetCommentDto
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.domain.exceptions.post.CommentNotFoundException
+import com.ssuspot.sns.domain.model.alarm.event.AlarmEvent
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.infrastructure.repository.post.CommentRepository
+import org.springframework.context.ApplicationEventPublisher
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -18,7 +20,8 @@ import org.springframework.transaction.annotation.Transactional
 class CommentService(
     private val commentRepository: CommentRepository,
     private val userService: UserService,
-    private val postService: PostService
+    private val postService: PostService,
+    private val applicationEventPublisher: ApplicationEventPublisher
 ) {
     @Transactional
     fun createComment(createCommentDto: CreateCommentDto): CommentResponseDto {
@@ -27,6 +30,13 @@ class CommentService(
             user = userService.findValidUserByEmail(createCommentDto.userEmail)
         )
         val savedComment = commentRepository.save(comment)
+        val alarmEvent = AlarmEvent(
+            postUserId = savedComment.post.user.id!!,
+            postId = savedComment.post.id!!,
+            commentUserId = savedComment.user.id!!,
+            commentId = savedComment.id!!
+        )
+        applicationEventPublisher.publishEvent(alarmEvent)
         return savedComment.toDto()
     }
 
