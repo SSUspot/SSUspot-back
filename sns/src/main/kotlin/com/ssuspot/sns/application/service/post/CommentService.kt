@@ -30,13 +30,15 @@ class CommentService(
             user = userService.findValidUserByEmail(createCommentDto.userEmail)
         )
         val savedComment = commentRepository.save(comment)
-        val alarmEvent = AlarmEvent(
-            postUserId = savedComment.post.user.id!!,
-            postId = savedComment.post.id!!,
-            commentUserId = savedComment.user.id!!,
-            commentId = savedComment.id!!
-        )
-        applicationEventPublisher.publishEvent(alarmEvent)
+        if(savedComment.post.user.id != savedComment.user.id){
+            val alarmEvent = AlarmEvent(
+                postUserId = savedComment.post.user.id!!,
+                postId = savedComment.post.id!!,
+                commentUserId = savedComment.user.id!!,
+                commentId = savedComment.id!!
+            )
+            applicationEventPublisher.publishEvent(alarmEvent)
+        }
         return savedComment.toDto()
     }
 
