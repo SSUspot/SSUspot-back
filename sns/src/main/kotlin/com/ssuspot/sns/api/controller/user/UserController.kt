@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController
 class UserController (
         val userService: UserService
 ){
-    @GetMapping("/api/users/")
+    @GetMapping("/api/users")
     fun getUserInfo(
         @Auth authInfo: AuthInfo
     ): ResponseEntity<UserResponse>{
