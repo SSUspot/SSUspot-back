@@ -1,5 +1,6 @@
 package com.ssuspot.sns.application.service.user
 
+import com.ssuspot.sns.application.dto.common.JwtTokenDto
 import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.application.dto.user.AuthTokenDto
 import com.ssuspot.sns.application.dto.user.LoginDto
@@ -9,11 +10,9 @@ import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
 import com.ssuspot.sns.domain.model.user.entity.User
+import com.ssuspot.sns.infrastructure.aop.CacheUser
 import com.ssuspot.sns.infrastructure.repository.user.UserRepository
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
-import org.springframework.cache.annotation.CacheEvict
-import org.springframework.cache.annotation.CachePut
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -67,28 +66,9 @@ class UserService(
         if (!passwordEncoder.matches(loginDto.password, user.password)) throw UserPasswordIncorrectException()
 
         //refresh,access token 생성
-        val accessToken = jwtTokenProvider.generateAccessToken(user.email)
-        val refreshToken = jwtTokenProvider.generateRefreshToken(user.email)
-
-        //refresh token spring cache에 저장
-        saveRefreshToken(user.email, refreshToken.token)
+        val accessToken = generateAccessToken(user.email)
+        val refreshToken = generateRefreshToken(user.email)
         return AuthTokenDto(accessToken, refreshToken)
-    }
-
-    // logout 기능 구현 필요
-    @CachePut(value = ["refreshToken"], key = "#email")
-    fun saveRefreshToken(email: String, refreshToken: String): String {
-        return refreshToken
-    }
-
-    @Cacheable(value = ["refreshToken"], key = "#email")
-    fun getRefreshToken(email: String): String? {
-        return null  // 캐시 조회 성공시 null 반환 x
-    }
-
-    @CacheEvict(value = ["refreshToken"], key = "#email")
-    fun deleteRefreshToken(email: String) {
-        // 캐시 삭제
     }
 
     fun getValidUser(email: String): User {
@@ -113,5 +93,13 @@ class UserService(
                 profileImageLink = registerDto.profileImageLink
             )
         )
+    }
+
+    private fun generateAccessToken(email: String): JwtTokenDto {
+        return jwtTokenProvider.generateAccessToken(email)
+    }
+
+    private fun generateRefreshToken(email: String): JwtTokenDto = CacheUser.cache("User","jwt:${email}") {
+        return@cache jwtTokenProvider.generateRefreshToken(email)
     }
 }

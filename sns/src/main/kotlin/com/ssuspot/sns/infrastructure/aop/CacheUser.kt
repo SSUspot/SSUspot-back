@@ -23,6 +23,7 @@ class CacheUser(
         fun <T> evict(vararg keys:Any, function: () -> T): T{
             return advice.evict(generateKey(keys), function)
         }
+        // 키 생성 규칙
         private fun generateKey(keys: Array<out Any>) = keys.joinToString(TOKEN)
     }
 
