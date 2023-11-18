@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
 
 
 @Configuration
-class RedisTemplateConfig {
+class RestTemplateConfig {
     @Bean
     fun restTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate {
         return restTemplateBuilder

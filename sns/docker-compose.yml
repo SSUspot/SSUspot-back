@@ -13,3 +13,9 @@ services:
     tty: true
     ports:
       - "5434:5432"
+
+  redis:
+    container_name: ssuspot_sns_redis
+    image: redis:latest
+    ports:
+      - "6379:6379"

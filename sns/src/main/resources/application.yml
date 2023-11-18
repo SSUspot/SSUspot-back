@@ -18,6 +18,9 @@ spring:
         enabled: true
         max-file-size: 10MB # 한개 파일의 최대 사이즈 (default: 1MB)
         max-request-size: 10MB # 한개 요청의 최대 사이즈 (default: 10MB)
+  redis:
+    host: ${SSUSPOT_REDIS_HOST}
+    port: ${SSUSPOT_REDIS_PORT}
 
 app:
   jwt:
