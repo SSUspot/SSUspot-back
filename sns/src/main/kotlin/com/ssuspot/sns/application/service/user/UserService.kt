@@ -62,14 +62,14 @@ class UserService(
     @Transactional
     fun login(
         loginDto: LoginDto
-    ): AuthTokenDto = CacheUser.evict("JWT","Email:${loginDto.email}") {
+    ): AuthTokenDto {
         val user = userRepository.findByEmail(loginDto.email) ?: throw UserNotFoundException()
         if (!passwordEncoder.matches(loginDto.password, user.password)) throw UserPasswordIncorrectException()
 
         //refresh,access token 생성
         val accessToken = generateAccessToken(user.email)
         val refreshToken = generateRefreshToken(user.email)
-        return@evict AuthTokenDto(accessToken, refreshToken)
+        return AuthTokenDto(accessToken, refreshToken)
     }
     fun getValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email) ?: throw UserNotFoundException()

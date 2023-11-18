@@ -16,7 +16,6 @@ class CacheUser(
         lateinit var advice: CacheUserAdvice
         private const val TOKEN = "::"
 
-        // 가변인자를 사용하여 여러개의 Any 타입의 keys 인자를 받음
         fun <T> cache(vararg keys:Any, function: () -> T): T{
             return advice.cache(generateKey(keys), function)
         }
