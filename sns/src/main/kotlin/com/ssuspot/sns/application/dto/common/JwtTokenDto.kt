@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.common
 
-class JwtTokenDto(
+data class JwtTokenDto(
         val token: String,
         val expiredIn: Long
 )
