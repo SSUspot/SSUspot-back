@@ -70,10 +70,6 @@ class UserService(
         val refreshToken = generateRefreshToken(user.email)
         return AuthTokenDto(accessToken, refreshToken)
     }
-
-    fun getValidUser(email: String): User {
-        return userRepository.findByEmail(email) ?: throw UserNotFoundException()
-    }
     fun getValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email) ?: throw UserNotFoundException()
     }

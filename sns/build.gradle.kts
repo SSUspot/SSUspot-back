@@ -3,7 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
 	id("org.springframework.boot") version "2.7.7"
-	id("io.spring.dependency-management") version "1.1.2"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("com.ewerk.gradle.plugins.querydsl") version "1.0.10"
 	kotlin("jvm") version "1.8.22"
 	kotlin("plugin.spring") version "1.8.22"
@@ -45,6 +45,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
+
+	// redis cache
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
 
 	// spring cache
 	implementation("org.springframework.boot:spring-boot-starter-cache")
@@ -95,4 +98,8 @@ configurations {
 }
 tasks.withType<QuerydslCompile> {
 	options.annotationProcessorPath = configurations.querydsl.get()
+}
+
+springBoot {
+	buildInfo()
 }
