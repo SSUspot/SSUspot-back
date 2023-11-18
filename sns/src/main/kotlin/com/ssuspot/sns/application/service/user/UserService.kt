@@ -95,7 +95,7 @@ class UserService(
         return jwtTokenProvider.generateAccessToken(email)
     }
 
-    private fun generateRefreshToken(email: String): JwtTokenDto = CacheUser.cache("User","jwt:${email}") {
+    private fun generateRefreshToken(email: String): JwtTokenDto = CacheUser.cache("JWT","Email:${email}") {
         return@cache jwtTokenProvider.generateRefreshToken(email)
     }
 }
