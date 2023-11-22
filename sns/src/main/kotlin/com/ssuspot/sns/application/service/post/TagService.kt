@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service
 class TagService(
     private val tagRepository: TagRepository
 ) {
+    fun createTag(name: String): Tag {
+        return tagRepository.save(Tag(tagName = name))
+    }
     fun findValidTagByName(name: String): Tag {
         return tagRepository.findTagByName(name) ?: throw TagNotFoundException()
     }

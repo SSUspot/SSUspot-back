@@ -44,7 +44,7 @@ class Post(
     val postLikes: MutableList<PostLike> = mutableListOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
-    val postTags: MutableList<PostTag> = mutableListOf(),
+    var postTags: MutableList<PostTag> = mutableListOf(),
 
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "spot_id")
