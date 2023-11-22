@@ -19,7 +19,6 @@ class PostService(
     private val postRepository: PostRepository,
     private val spotService: SpotService,
     private val userService: UserService,
-    private val postTagService: PostTagService,
     private val tagService: TagService
 ) {
     @Transactional
@@ -72,13 +71,10 @@ class PostService(
     }
 
     private fun createTags(tags: List<String>, post: Post): List<PostTag> {
-        var createdTags = mutableListOf<PostTag>()
+        val createdTags = mutableListOf<PostTag>()
         tags.forEach{
             // 1. tags를 순회하면서 tag를 찾는다. 없으면 생성
-            var tag = tagService.findValidTagByName(it)
-            if (tag == null) {
-                tag = tagService.createTag(it)
-            }
+            val tag = tagService.findValidTagByName(it)
             // 2. postTag를 생성한다.
             val postTag = PostTag(
                 post = post,

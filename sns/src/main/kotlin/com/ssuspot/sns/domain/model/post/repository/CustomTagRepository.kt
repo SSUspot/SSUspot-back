@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable
 interface CustomTagRepository {
     fun findPostsByTagName(tagName: String, page: Pageable): Page<Post>?
     fun findTagByTagName(name: String): Tag?
-    fun findTagsByTagNames(names: List<String>): List<Tag>?
-    fun findPostsByTagNames(names: List<String>, page: Pageable): Page<Post>?
+    fun findTagsByTagNameIn(names: List<String>): List<Tag>?
+    fun findPostsByTagNameIn(names: List<String>, page: Pageable): Page<Post>?
 }
+

@@ -1,7 +1,6 @@
 package com.ssuspot.sns.infrastructure.repository.post
 
 import com.querydsl.jpa.impl.JPAQueryFactory
-import com.ssuspot.sns.domain.exceptions.post.TagNotFoundException
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.post.entity.QTag
 import com.ssuspot.sns.domain.model.post.entity.Tag
@@ -42,13 +41,13 @@ class CustomTagRepositoryImpl(
             .fetchOne()
     }
 
-    override fun findTagsByTagNames(names: List<String>): List<Tag>? {
+    override fun findTagsByTagNameIn(names: List<String>): List<Tag>? {
         return queryFactory.selectFrom(QTag.tag)
             .where(QTag.tag.tagName.`in`(names))
             .fetch()
     }
 
-    override fun findPostsByTagNames(names: List<String>, pageable: Pageable): Page<Post>? {
+    override fun findPostsByTagNameIn(names: List<String>, pageable: Pageable): Page<Post>? {
         //should join PostTag and join Post
         val query = queryFactory.selectFrom(QTag.tag)
             .join(QTag.tag.postTags)

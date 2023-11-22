@@ -16,10 +16,10 @@ class TagService(
         return tagRepository.save(Tag(tagName = name))
     }
     fun findValidTagByName(name: String): Tag {
-        return tagRepository.findTagByName(name) ?: throw TagNotFoundException()
+        return tagRepository.findTagByTagName(name) ?: throw TagNotFoundException()
     }
     fun findValidPostsByName(name: String): List<Post> {
-        val tag = tagRepository.findTagByName(name) ?: throw TagNotFoundException()
+        val tag = tagRepository.findTagByTagName(name) ?: throw TagNotFoundException()
         return tag.postTags.map { it.post }
     }
     fun findValidTagById(id: Long): Tag {
