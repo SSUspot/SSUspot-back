@@ -30,7 +30,7 @@ class PostService(
         var savedPost = postRepository.save(post)
         val postTags = createTags(createPostDto.tags, savedPost)
         savedPost.postTags = postTags as MutableList<PostTag>
-        postRepository.save(savedPost)
+        savedPost = postRepository.save(savedPost)
         return savedPost.toDto()
     }
 
@@ -73,14 +73,14 @@ class PostService(
     private fun createTags(tags: List<String>, post: Post): List<PostTag> {
         val createdTags = mutableListOf<PostTag>()
         tags.forEach{
-            // 1. tags를 순회하면서 tag를 찾는다. 없으면 생성
-            val tag = tagService.findValidTagByName(it)
-            // 2. postTag를 생성한다.
+            var tag = tagService.findValidTagByName(it)
+            if(tag == null){
+                tag = tagService.createTag(it)
+            }
             val postTag = PostTag(
                 post = post,
                 tag = tag
             )
-            // 3. postTag를 저장한다.
             createdTags.add(postTag)
         }
         return createdTags
@@ -102,6 +102,7 @@ class PostService(
             content = content,
             nickname = user.nickname,
             imageUrls = imageUrls,
+            tags = postTags.map { it.tag.tagName },
             spotId = spot.id!!
         )
 

@@ -6,5 +6,6 @@ data class PostResponseDto(
     val content: String,
     val nickname: String,
     val imageUrls: List<String>,
+    val tags: List<String>,
     val spotId: Long,
 )

@@ -32,6 +32,7 @@ class PostController(
                 post.content,
                 post.nickname,
                 post.imageUrls,
+                post.tags,
                 post.spotId
             )
         )
@@ -52,6 +53,7 @@ class PostController(
                     it.content,
                     it.nickname,
                     it.imageUrls,
+                    it.tags,
                     it.spotId
                 )
             }
@@ -75,6 +77,7 @@ class PostController(
                     it.content,
                     it.nickname,
                     it.imageUrls,
+                    it.tags,
                     it.spotId
                 )
             }
@@ -98,6 +101,7 @@ class PostController(
                     it.content,
                     it.nickname,
                     it.imageUrls,
+                    it.tags,
                     it.spotId
                 )
             }
@@ -127,6 +131,7 @@ class PostController(
                 savedPost.content,
                 savedPost.nickname,
                 savedPost.imageUrls,
+                savedPost.tags,
                 savedPost.spotId
             )
         )

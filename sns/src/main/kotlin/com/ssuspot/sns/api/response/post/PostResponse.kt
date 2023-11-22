@@ -6,5 +6,6 @@ data class PostResponse(
     val content: String,
     val writer: String,
     val imageUrls: List<String>,
+    val tags: List<String>,
     val spotId: Long
 )

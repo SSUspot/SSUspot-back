@@ -14,14 +14,13 @@ import org.springframework.stereotype.Repository
 class CustomTagRepositoryImpl(
     private val queryFactory: JPAQueryFactory
 ): CustomTagRepository {
-    override fun findPostsByTagName(tagName: String, pageable: Pageable): Page<Post>? {
-        //should join PostTag and join Post
+    override fun findPostsByTagName(tagName: String, page: Pageable): Page<Post>? {
         val query = queryFactory.selectFrom(QTag.tag)
             .join(QTag.tag.postTags)
             .join(QTag.tag.postTags.any().post)
             .where(QTag.tag.tagName.eq(tagName))
-            .offset(pageable.offset)
-            .limit(pageable.pageSize.toLong())
+            .offset(page.offset)
+            .limit(page.pageSize.toLong())
         val result = query.fetch()
         val total = queryFactory.selectFrom(QTag.tag)
             .join(QTag.tag.postTags)
@@ -30,7 +29,7 @@ class CustomTagRepositoryImpl(
             .fetchCount()
         return PageImpl(
             result.map { it.postTags.map { it.post } }.flatten(),
-            pageable,
+            page,
             total
         )
     }
@@ -47,14 +46,13 @@ class CustomTagRepositoryImpl(
             .fetch()
     }
 
-    override fun findPostsByTagNameIn(names: List<String>, pageable: Pageable): Page<Post>? {
-        //should join PostTag and join Post
+    override fun findPostsByTagNameIn(names: List<String>, page: Pageable): Page<Post>? {
         val query = queryFactory.selectFrom(QTag.tag)
             .join(QTag.tag.postTags)
             .join(QTag.tag.postTags.any().post)
             .where(QTag.tag.tagName.`in`(names))
-            .offset(pageable.offset)
-            .limit(pageable.pageSize.toLong())
+            .offset(page.offset)
+            .limit(page.pageSize.toLong())
         val result = query.fetch()
         val total = queryFactory.selectFrom(QTag.tag)
             .join(QTag.tag.postTags)
@@ -63,7 +61,7 @@ class CustomTagRepositoryImpl(
             .fetchCount()
         return PageImpl(
             result.map { it.postTags.map { it.post } }.flatten(),
-            pageable,
+            page,
             total
         )
     }
