@@ -30,6 +30,11 @@ dependencies {
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 
+	implementation("com.querydsl:querydsl-jpa")
+
+	// h2 for test
+	runtimeOnly("com.h2database:h2")
+
 	// postgreSQL
 	implementation("org.postgresql:postgresql")
 
@@ -46,11 +51,11 @@ dependencies {
 	implementation("org.hibernate.validator:hibernate-validator:6.0.21.Final")
 	implementation("org.springframework.boot:spring-boot-starter-aop")
 
-	// redis cache
-	implementation("org.springframework.boot:spring-boot-starter-data-redis")
-
-	// spring cache
-	implementation("org.springframework.boot:spring-boot-starter-cache")
+	// spring redis
+	compile ("org.springframework.boot:spring-boot-starter-data-redis")
+	compile ("org.springframework.data:spring-data-redis")
+	compile (group = "redis.clients", name = "jedis", version = "2.9.0")
+	compile (group = "it.ozimov", name = "embedded-redis", version = "0.7.1")
 
 	// querydsl
 	implementation("com.querydsl:querydsl-jpa:5.0.0")
@@ -98,8 +103,4 @@ configurations {
 }
 tasks.withType<QuerydslCompile> {
 	options.annotationProcessorPath = configurations.querydsl.get()
-}
-
-springBoot {
-	buildInfo()
 }
