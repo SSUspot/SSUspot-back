@@ -5,6 +5,7 @@ import com.ssuspot.sns.domain.exceptions.post.PostNotFoundException
 import com.ssuspot.sns.domain.exceptions.post.PostTagNotFoundException
 import com.ssuspot.sns.domain.model.post.entity.PostTag
 import com.ssuspot.sns.infrastructure.repository.post.PostTagRepository
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,14 +26,14 @@ class PostTagService(
     }
 
     @Transactional(readOnly = true)
-    fun getPostTagsByPostId(postId: Long): List<PostTagDto> {
-        val postTags = postTagRepository.findPostTagsByPostId(postId) ?: throw PostNotFoundException()
-        return postTags.map { it.toDto() }
+    fun getPostTagsByPostId(postId: Long, pageable: Pageable): List<PostTagDto> {
+        val postTags = postTagRepository.findPostTagsByPostId(postId, pageable) ?: throw PostNotFoundException()
+        return postTags.content.map { it.toDto() }
     }
 
     @Transactional(readOnly = true)
     fun getPostTagsByTagName(tagName: String): List<PostTagDto> {
-        val postTags = postTagRepository.findPostTagsByTagName(tagName) ?: throw PostTagNotFoundException()
+        val postTags = postTagRepository.findPostTagsByTagTagName(tagName) ?: throw PostTagNotFoundException()
         return postTags.map { it.toDto() }
     }
 

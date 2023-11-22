@@ -33,7 +33,7 @@ class CustomPostTagRepositoryImpl(
         )
     }
 
-    override fun findPostTagsByTagName(
+    override fun findPostTagsByTagTagName(
         tagName: String
     ): List<PostTag>? {
         return queryFactory.selectFrom(QPostTag.postTag)
