@@ -1,6 +1,7 @@
 package com.ssuspot.sns.api.controller.post
 
 import com.ssuspot.sns.api.request.post.CreateCommentRequest
+import com.ssuspot.sns.api.request.post.UpdateCommentRequest
 import com.ssuspot.sns.api.response.post.CommentResponse
 import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.CreateCommentDto
@@ -75,5 +76,33 @@ class CommentController(
                 content = savedComment.content,
             )
         )
+    }
+
+    //modify comment
+    @PutMapping("/api/comments/{commentId}")
+    fun updateComment(
+        @PathVariable commentId: Long,
+        @RequestBody updateCommentRequest: UpdateCommentRequest,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<CommentResponse> {
+        val updatedComment = commentService.updateComment(commentId, updateCommentRequest.content, authInfo.email)
+        return ResponseEntity.ok().body(
+            CommentResponse(
+                id = updatedComment.id,
+                postId = updatedComment.postId,
+                nickname = updatedComment.nickname,
+                content = updatedComment.content,
+            )
+        )
+    }
+
+    //delete comment
+    @DeleteMapping("/api/comments/{commentId}")
+    fun deleteComment(
+        @PathVariable commentId: Long,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<Unit> {
+        commentService.deleteComment(commentId, authInfo.email)
+        return ResponseEntity.ok().build()
     }
 }

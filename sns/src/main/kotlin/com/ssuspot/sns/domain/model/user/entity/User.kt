@@ -49,8 +49,6 @@ class User(
         @field:Column(name = "profile_image_link")
         var profileImageLink: String?,
 
-        // spring cache 이용해 refresh token 저장
-
         @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
         val posts: MutableList<Post> = mutableListOf(),
 

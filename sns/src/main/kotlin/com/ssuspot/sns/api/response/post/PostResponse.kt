@@ -4,7 +4,7 @@ data class PostResponse(
     val id: Long,
     val title: String,
     val content: String,
-    val writer: String,
+    val nickname: String,
     val imageUrls: List<String>,
     val tags: List<String>,
     val spotId: Long

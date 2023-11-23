@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.post
 
-data class CreatePostDto(
+data class CreatePostRequestDto(
     val title: String,
     val content: String,
     val userEmail: String,
