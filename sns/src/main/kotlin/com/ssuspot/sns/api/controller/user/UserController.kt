@@ -11,6 +11,7 @@ import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
@@ -73,6 +74,27 @@ class UserController (
         )
         return ResponseEntity.ok(
                 LoginResponse(token)
+        )
+    }
+
+    @PatchMapping("/api/users")
+    fun updateUserProfile(
+        @Auth authInfo: AuthInfo,
+        @RequestBody request: RegisterRequest
+    ): ResponseEntity<UserResponse>{
+        val user = userService.updateProfile(
+                authInfo.email,
+                RegisterDto(
+                        authInfo.email,
+                        request.password,
+                        request.userName,
+                        request.nickname,
+                        request.profileMessage,
+                        request.profileImageLink
+                )
+        )
+        return ResponseEntity.ok().body(
+            user.toResponseDto()
         )
     }
 }

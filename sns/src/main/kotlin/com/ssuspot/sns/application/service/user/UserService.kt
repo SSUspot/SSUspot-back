@@ -5,7 +5,7 @@ import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.application.dto.user.AuthTokenDto
 import com.ssuspot.sns.application.dto.user.LoginDto
 import com.ssuspot.sns.application.dto.user.RegisterDto
-import com.ssuspot.sns.application.dto.user.RegisterResponseDto
+import com.ssuspot.sns.application.dto.user.UserResponseDto
 import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
@@ -25,13 +25,10 @@ class UserService(
     private val jwtTokenProvider: JwtTokenProvider,
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
-    fun getUserInfo(email: String): User {
-        return userRepository.findByEmail(email)
-            ?: throw UserNotFoundException()
-    }
+    @Transactional
     fun registerProcess(
         registerDto: RegisterDto
-    ): RegisterResponseDto {
+    ): UserResponseDto {
         val user = userRepository.findByEmail(registerDto.email)
         if(user != null) throw EmailExistException()
 
@@ -43,19 +40,20 @@ class UserService(
             println("event publish error")
         }
 
-        return RegisterResponseDto(
-            savedUser.id!!,
-            savedUser.email,
-            savedUser.userName,
-            savedUser.nickname,
-            savedUser.profileMessage,
-            savedUser.profileImageLink
-        )
+        return savedUser.toDto()
     }
 
-    fun findValidUserByEmail(email: String): User {
-        return userRepository.findByEmail(email)
-            ?: throw UserNotFoundException()
+    // 사용자 프로필 수정 api
+    @Transactional
+    fun updateProfile(
+        email: String,
+        registerDto: RegisterDto
+    ): UserResponseDto {
+        val user = getValidUserByEmail(email)
+        user.updateNickname(registerDto.nickname)
+        user.updateProfileMessage(registerDto.profileMessage)
+        user.updateProfileImageLink(registerDto.profileImageLink)
+        return user.toDto()
     }
 
     //실행시 evict하여 캐시 삭제
@@ -71,11 +69,20 @@ class UserService(
         val refreshToken = generateRefreshToken(user.email)
         return AuthTokenDto(accessToken, refreshToken)
     }
+    fun findValidUserByEmail(email: String): User {
+        return userRepository.findByEmail(email)
+            ?: throw UserNotFoundException()
+    }
     fun getValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email) ?: throw UserNotFoundException()
     }
     fun getValidUser(userId: Long): User {
         return userRepository.findById(userId).orElseThrow { UserNotFoundException() }
+    }
+
+    fun getUserInfo(email: String): User {
+        return userRepository.findByEmail(email)
+            ?: throw UserNotFoundException()
     }
     private fun createUser(
         registerDto: RegisterDto
@@ -98,5 +105,16 @@ class UserService(
 
     private fun generateRefreshToken(email: String): JwtTokenDto = CacheUser.cache("JWT","Email:${email}") {
         return@cache jwtTokenProvider.generateRefreshToken(email)
+    }
+
+    private fun User.toDto(): UserResponseDto {
+        return UserResponseDto(
+            id = this.id!!,
+            email = this.email,
+            userName = this.userName,
+            nickname = this.nickname,
+            profileMessage = this.profileMessage,
+            profileImageLink = this.profileImageLink
+        )
     }
 }

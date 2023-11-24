@@ -14,7 +14,7 @@ data class PostResponseDto(
     val createdAt: String,
     val updatedAt: String,
 ) {
-    fun toDto(): PostResponse {
+    fun toResponseDto(): PostResponse {
         return PostResponse(
             this.id,
             this.title,

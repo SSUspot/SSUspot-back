@@ -1,5 +1,6 @@
 package com.ssuspot.sns.domain.model.user.entity
 
+import com.ssuspot.sns.application.dto.user.UserResponseDto
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.post.entity.PostLike
@@ -61,5 +62,22 @@ class User(
 ): BaseTimeEntity(){
         fun updateNickname(newNickname: String) {
                 this.nickname = newNickname
+        }
+        fun updateProfileMessage(newProfileMessage: String?) {
+                this.profileMessage = newProfileMessage
+        }
+        fun updateProfileImageLink(newProfileImageLink: String?) {
+                this.profileImageLink = newProfileImageLink
+        }
+
+        fun toDto(): UserResponseDto {
+                return UserResponseDto(
+                        id = this.id!!,
+                        email = this.email,
+                        userName = this.userName,
+                        nickname = this.nickname,
+                        profileMessage = this.profileMessage,
+                        profileImageLink = this.profileImageLink
+                )
         }
 }

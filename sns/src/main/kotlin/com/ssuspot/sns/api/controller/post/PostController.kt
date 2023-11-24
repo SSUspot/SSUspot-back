@@ -27,7 +27,7 @@ class PostController(
     ): ResponseEntity<PostResponse>{
         val post = postService.getPostById(postId)
         return ResponseEntity.ok().body(
-            post.toDto()
+            post.toResponseDto()
         )
     }
 
@@ -40,7 +40,7 @@ class PostController(
         val posts = postService.getMyPosts(GetMyPostsDto(page, size, authInfo.email))
         return ResponseEntity.ok(
             posts.map {
-                it.toDto()
+                it.toResponseDto()
             }
         )
     }
@@ -56,7 +56,7 @@ class PostController(
         val posts = postService.getPostsByUserId(GetUserPostsDto(page, size, sort, userId))
         return ResponseEntity.ok(
             posts.map {
-                it.toDto()
+                it.toResponseDto()
             }
         )
     }
@@ -72,7 +72,7 @@ class PostController(
         val posts = postService.getPostsBySpotId(spotId, page, size)
         return ResponseEntity.ok(
             posts.map {
-                it.toDto()
+                it.toResponseDto()
             }
         )
     }
@@ -86,7 +86,7 @@ class PostController(
         val posts = postService.findPostsByTagName(GetTagRequestDto(page, size, tagName))
         return ResponseEntity.ok(
             posts.map {
-                it.toDto()
+                it.toResponseDto()
             }
         )
     }
@@ -108,7 +108,7 @@ class PostController(
             )
         )
         return ResponseEntity.ok().body(
-            savedPost.toDto()
+            savedPost.toResponseDto()
         )
     }
 
@@ -128,7 +128,7 @@ class PostController(
             postId
         )
         return ResponseEntity.ok().body(
-            updatedPost.toDto()
+            updatedPost.toResponseDto()
         )
     }
 
