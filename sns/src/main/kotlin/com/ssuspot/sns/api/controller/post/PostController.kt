@@ -1,13 +1,10 @@
 package com.ssuspot.sns.api.controller.post
 
-import com.ssuspot.sns.application.dto.post.CreatePostRequestDto
 import com.ssuspot.sns.api.request.post.CreatePostRequest
 import com.ssuspot.sns.api.request.post.UpdatePostRequest
 import com.ssuspot.sns.api.response.post.PostResponse
 import com.ssuspot.sns.application.annotation.Auth
-import com.ssuspot.sns.application.dto.post.GetMyPostsDto
-import com.ssuspot.sns.application.dto.post.GetUserPostsDto
-import com.ssuspot.sns.application.dto.post.UpdatePostRequestDto
+import com.ssuspot.sns.application.dto.post.*
 import com.ssuspot.sns.application.service.post.PostService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
@@ -30,15 +27,7 @@ class PostController(
     ): ResponseEntity<PostResponse>{
         val post = postService.getPostById(postId)
         return ResponseEntity.ok().body(
-            PostResponse(
-                post.id,
-                post.title,
-                post.content,
-                post.nickname,
-                post.imageUrls,
-                post.tags,
-                post.spotId
-            )
+            post.toDto()
         )
     }
 
@@ -51,15 +40,7 @@ class PostController(
         val posts = postService.getMyPosts(GetMyPostsDto(page, size, authInfo.email))
         return ResponseEntity.ok(
             posts.map {
-                PostResponse(
-                    it.id,
-                    it.title,
-                    it.content,
-                    it.nickname,
-                    it.imageUrls,
-                    it.tags,
-                    it.spotId
-                )
+                it.toDto()
             }
         )
     }
@@ -75,15 +56,7 @@ class PostController(
         val posts = postService.getPostsByUserId(GetUserPostsDto(page, size, sort, userId))
         return ResponseEntity.ok(
             posts.map {
-                PostResponse(
-                    it.id,
-                    it.title,
-                    it.content,
-                    it.nickname,
-                    it.imageUrls,
-                    it.tags,
-                    it.spotId
-                )
+                it.toDto()
             }
         )
     }
@@ -99,15 +72,21 @@ class PostController(
         val posts = postService.getPostsBySpotId(spotId, page, size)
         return ResponseEntity.ok(
             posts.map {
-                PostResponse(
-                    it.id,
-                    it.title,
-                    it.content,
-                    it.nickname,
-                    it.imageUrls,
-                    it.tags,
-                    it.spotId
-                )
+                it.toDto()
+            }
+        )
+    }
+
+    @GetMapping("/api/tags")
+    fun getPostsByTagName(
+        @RequestParam("page", defaultValue = "1") page: Int,
+        @RequestParam("size", defaultValue = "10") size: Int,
+        @RequestParam("tagName") tagName: String
+    ): ResponseEntity<List<PostResponse>> {
+        val posts = postService.findPostsByTagName(GetTagRequestDto(page, size, tagName))
+        return ResponseEntity.ok(
+            posts.map {
+                it.toDto()
             }
         )
     }
@@ -123,21 +102,13 @@ class PostController(
                 request.title,
                 request.content,
                 authInfo.email,
-                request.imageUrls,
+                request.imageUrl,
                 request.tags,
                 request.spotId
             )
         )
         return ResponseEntity.ok().body(
-            PostResponse(
-                savedPost.id,
-                savedPost.title,
-                savedPost.content,
-                savedPost.nickname,
-                savedPost.imageUrls,
-                savedPost.tags,
-                savedPost.spotId
-            )
+            savedPost.toDto()
         )
     }
 
@@ -157,15 +128,7 @@ class PostController(
             postId
         )
         return ResponseEntity.ok().body(
-            PostResponse(
-                updatedPost.id,
-                updatedPost.title,
-                updatedPost.content,
-                updatedPost.nickname,
-                updatedPost.imageUrls,
-                updatedPost.tags,
-                updatedPost.spotId
-            )
+            updatedPost.toDto()
         )
     }
 
