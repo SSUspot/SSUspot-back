@@ -13,6 +13,7 @@ data class PostResponseDto(
     val spotId: Long,
     val createdAt: String,
     val updatedAt: String,
+    var hasLiked: Boolean = false
 ) {
     fun toResponseDto(): PostResponse {
         return PostResponse(
@@ -24,7 +25,8 @@ data class PostResponseDto(
             this.tags,
             this.spotId,
             createdAt = EpochTimeUtil.convertEpochTimeToLocalDateTime(this.createdAt.toLong()).toString(),
-            updatedAt = EpochTimeUtil.convertEpochTimeToLocalDateTime(this.updatedAt.toLong()).toString()
+            updatedAt = EpochTimeUtil.convertEpochTimeToLocalDateTime(this.updatedAt.toLong()).toString(),
+            this.hasLiked
         )
     }
 }

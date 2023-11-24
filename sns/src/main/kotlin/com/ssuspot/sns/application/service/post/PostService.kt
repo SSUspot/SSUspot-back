@@ -36,16 +36,14 @@ class PostService(
     }
 
     @Transactional
-    fun updatePost(updatePostRequestDto: UpdatePostRequestDto, postId: Long): PostResponseDto {
-        val post = findValidPostById(postId)
+    fun updatePost(updatePostRequestDto: UpdatePostRequestDto): PostResponseDto {
+        val post = findValidPostById(updatePostRequestDto.postId)
         val user = userService.findValidUserByEmail(updatePostRequestDto.email)
-        // check if user is the owner of the post
         checkPostOwner(post, user)
         updatePostArticle(post, updatePostRequestDto)
         return customPostRepository.save(post).toDto()
     }
 
-    @Transactional(readOnly = true)
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByUserId(
@@ -55,29 +53,32 @@ class PostService(
         return posts.content.map { it.toDto() }
     }
 
-    @Transactional(readOnly = true)
-    fun deletePost(postId: Long, email: String) {
-        val post = findValidPostById(postId)
-        val user = userService.findValidUserByEmail(email)
+    fun deletePost(specificPostRequestDto: SpecificPostRequestDto) {
+        val post = findValidPostById(specificPostRequestDto.postId)
+        val user = userService.findValidUserByEmail(specificPostRequestDto.email)
         checkPostOwner(post, user)
         customPostRepository.delete(post)
     }
 
 
-    fun getPostById(postId: Long): PostResponseDto {
-        val post = customPostRepository.findPostById(postId) ?: throw PostNotFoundException()
-        return post.toDto()
-    }
-    @Transactional(readOnly = true)
-    fun getPostsBySpotId(spotId: Long, page: Int, size: Int): List<PostResponseDto> {
-        val posts = customPostRepository.findPostsBySpotId(spotId, toPageableLatestSort(page, size))
-        return posts.content.map { it.toDto() }
+    fun getPostById(specificPostRequestDto: SpecificPostRequestDto): PostResponseDto {
+        val user = userService.findValidUserByEmail(specificPostRequestDto.email)
+        val post = customPostRepository.findPostById(specificPostRequestDto.postId, user) ?: throw PostNotFoundException()
+        return post
     }
 
-    @Transactional(readOnly=true)
+    fun getPostsBySpotId(spotId: Long, email: String, page: Int, size: Int): List<PostResponseDto> {
+        val user = userService.findValidUserByEmail(email)
+        val posts = customPostRepository.findPostsBySpotId(spotId, user, toPageableLatestSort(page, size))
+        return posts.content
+    }
+
     fun findPostsByTagName(request: GetTagRequestDto): List<PostResponseDto> {
-        val posts = customPostRepository.findPostsByTagName(request.tagName, toPageableLatestSort(request.page, request.size)) ?: throw PostNotFoundException()
-        return posts.content.map { it.toDto() }
+        val user = userService.findValidUserByEmail(request.email)
+        val posts =
+            customPostRepository.findPostsByTagName(request.tagName, user, toPageableLatestSort(request.page, request.size))
+                ?: throw PostNotFoundException()
+        return posts.content
     }
 
     fun getPostsByUserId(getPostsRequest: GetUserPostsDto): List<PostResponseDto> {
@@ -89,7 +90,7 @@ class PostService(
     }
 
     fun findValidPostById(postId: Long): Post {
-        return customPostRepository.findPostById(postId) ?: throw PostNotFoundException()
+        return customPostRepository.findValidPostById(postId)
     }
 
     private fun createTags(tags: List<String>, post: Post): List<PostTag> {

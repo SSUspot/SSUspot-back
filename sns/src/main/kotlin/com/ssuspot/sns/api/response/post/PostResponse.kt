@@ -10,4 +10,5 @@ data class PostResponse(
     val spotId: Long,
     val createdAt: String,
     val updatedAt: String,
+    val hasLiked: Boolean = false
 )

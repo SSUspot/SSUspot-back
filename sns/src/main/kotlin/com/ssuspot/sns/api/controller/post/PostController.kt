@@ -23,9 +23,15 @@ class PostController(
 ) {
     @GetMapping("/api/posts/{postId}")
     fun getSpecificPost(
-        @PathVariable postId: Long
-    ): ResponseEntity<PostResponse>{
-        val post = postService.getPostById(postId)
+        @PathVariable postId: Long,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<PostResponse> {
+        val post = postService.getPostById(
+            SpecificPostRequestDto(
+                postId,
+                authInfo.email
+            )
+        )
         return ResponseEntity.ok().body(
             post.toResponseDto()
         )
@@ -45,7 +51,6 @@ class PostController(
         )
     }
 
-    // Get specific user's posts
     @GetMapping("/api/posts/users/{userId}")
     fun getPostsByUserId(
         @RequestParam("page", defaultValue = "1") page: Int,
@@ -61,15 +66,15 @@ class PostController(
         )
     }
 
-    // Get specific spot's posts
     @GetMapping("/api/posts/spots/{spotId}")
     fun getPostsBySpotId(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
         @RequestParam("sort", defaultValue = "postId") sort: String,
-        @PathVariable("spotId") spotId: Long
+        @PathVariable("spotId") spotId: Long,
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
-        val posts = postService.getPostsBySpotId(spotId, page, size)
+        val posts = postService.getPostsBySpotId(spotId, authInfo.email, page, size)
         return ResponseEntity.ok(
             posts.map {
                 it.toResponseDto()
@@ -81,9 +86,10 @@ class PostController(
     fun getPostsByTagName(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
-        @RequestParam("tagName") tagName: String
+        @RequestParam("tagName") tagName: String,
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
-        val posts = postService.findPostsByTagName(GetTagRequestDto(page, size, tagName))
+        val posts = postService.findPostsByTagName(GetTagRequestDto(page, size, tagName, authInfo.email))
         return ResponseEntity.ok(
             posts.map {
                 it.toResponseDto()
@@ -120,12 +126,12 @@ class PostController(
     ): ResponseEntity<PostResponse> {
         val updatedPost = postService.updatePost(
             UpdatePostRequestDto(
+                postId,
                 request.title,
                 request.content,
                 authInfo.email,
                 request.tags
-            ),
-            postId
+            )
         )
         return ResponseEntity.ok().body(
             updatedPost.toResponseDto()
@@ -137,6 +143,11 @@ class PostController(
         @PathVariable postId: Long,
         @Auth authInfo: AuthInfo
     ) {
-        postService.deletePost(postId, authInfo.email)
+        postService.deletePost(
+            SpecificPostRequestDto(
+                postId,
+                authInfo.email
+            )
+        )
     }
 }

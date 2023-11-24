@@ -1,15 +1,19 @@
 package com.ssuspot.sns.infrastructure.repository.post
 
 import com.querydsl.jpa.impl.JPAQueryFactory
+import com.ssuspot.sns.application.dto.post.PostResponseDto
+import com.ssuspot.sns.domain.exceptions.post.PostNotFoundException
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.post.entity.QPost
 import com.ssuspot.sns.domain.model.post.entity.QPostTag
 import com.ssuspot.sns.domain.model.post.entity.QTag
 import com.ssuspot.sns.domain.model.post.repository.CustomPostRepository
+import com.ssuspot.sns.domain.model.user.entity.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 
 @Repository
 class CustomPostRepositoryImpl(
@@ -19,18 +23,30 @@ class CustomPostRepositoryImpl(
     override fun save(post: Post): Post {
         return postRepository.save(post)
     }
+
     override fun delete(post: Post) {
         postRepository.delete(post)
     }
+    override fun findValidPostById(postId: Long): Post {
+        return postRepository.findById(postId).orElseThrow { throw PostNotFoundException() }
+    }
 
-    override fun findPostById(postId: Long): Post? {
-        return queryFactory
+    @Transactional(readOnly = true)
+    override fun findPostById(postId: Long, user: User): PostResponseDto? {
+        val post = queryFactory
             .selectFrom(QPost.post)
             .where(QPost.post.id.eq(postId))
             .fetchOne()
+
+        return post?.let {
+            val hasLiked = it.postLikes.any { postLike -> postLike.user.id == user.id }
+            it.toDto().apply { this.hasLiked = hasLiked }
+        }
     }
 
-    override fun findPostsBySpotId(spotId: Long, pageable: Pageable): Page<Post> {
+
+    @Transactional(readOnly = true)
+    override fun findPostsBySpotId(spotId: Long, user: User, pageable: Pageable): Page<PostResponseDto> {
         val query = queryFactory.selectFrom(QPost.post)
             .where(QPost.post.spot.id.eq(spotId))
             .orderBy(QPost.post.createdAt.desc())
@@ -42,13 +58,19 @@ class CustomPostRepositoryImpl(
             .where(QPost.post.spot.id.eq(spotId))
             .fetchCount()
 
+        val postResponses = results.map { post ->
+            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            post.toDto().apply { this.hasLiked = hasLiked }
+        }
+
         return PageImpl(
-            results,
+            postResponses,
             pageable,
             total
         )
     }
 
+    @Transactional(readOnly = true)
     override fun findPostsByUserId(userId: Long, pageable: Pageable): Page<Post> {
         val query = queryFactory.selectFrom(QPost.post)
             .where(QPost.post.user.id.eq(userId))
@@ -68,7 +90,8 @@ class CustomPostRepositoryImpl(
         )
     }
 
-    override fun findPostsByTagName(tagName: String, pageable: Pageable): Page<Post> {
+    @Transactional(readOnly = true)
+    override fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto> {
         val post = QPost.post
         val postTag = QPostTag.postTag
         val tag = QTag.tag
@@ -88,9 +111,15 @@ class CustomPostRepositoryImpl(
             .where(tag.tagName.eq(tagName))
             .fetchCount()
 
-        return PageImpl(posts, pageable, total)
+        val postResponses = posts.map { post ->
+            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            post.toDto().apply { this.hasLiked = hasLiked }
+        }
+
+        return PageImpl(postResponses, pageable, total)
     }
 
+    @Transactional(readOnly = true)
     override fun findPostsByTagNameIn(tagNames: List<String>, page: Pageable): Page<Post>? {
         val post = QPost.post
         val postTag = QPostTag.postTag
