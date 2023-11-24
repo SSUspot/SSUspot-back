@@ -10,10 +10,10 @@ class UserFollow(
     val id: Long? = null,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
-    @field:JoinColumn(name = "follower_id")
-    val follower: User,
+    @field:JoinColumn(name = "following_user_id")
+    val followingUser: User,
 
     @field:ManyToOne(fetch = FetchType.LAZY)
-    @field:JoinColumn(name = "followee_id")
-    val followee: User
+    @field:JoinColumn(name = "followed_user_id")
+    val followedUser: User
 )

@@ -7,7 +7,9 @@ import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
 import com.ssuspot.sns.domain.model.user.entity.User
+import com.ssuspot.sns.domain.model.user.entity.UserFollow
 import com.ssuspot.sns.infrastructure.aop.CacheUser
+import com.ssuspot.sns.infrastructure.repository.post.UserFollowRepository
 import com.ssuspot.sns.infrastructure.repository.user.UserRepository
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
 import org.springframework.context.ApplicationEventPublisher
@@ -17,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class UserService(
-    val userRepository: UserRepository,
+    private val userRepository: UserRepository,
+    private val userFollowRepository: UserFollowRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
     private val applicationEventPublisher: ApplicationEventPublisher
@@ -65,6 +68,94 @@ class UserService(
         val refreshToken = generateRefreshToken(user.email)
         return AuthTokenDto(accessToken, refreshToken)
     }
+
+    @Transactional
+    fun follow(
+        followingRequestDto: FollowingRequestDto
+    ): FollowUserResponseDto{
+        val user = getValidUserByEmail(followingRequestDto.email)
+        val followedUser = getValidUser(followingRequestDto.userId)
+        val userFollow = userFollowRepository.save(
+            UserFollow(
+                followingUser = user,
+                followedUser = followedUser
+            )
+        )
+        return FollowUserResponseDto(
+            id = userFollow.id!!,
+            userId = userFollow.followedUser.id!!,
+            userName = userFollow.followedUser.userName,
+            nickname = userFollow.followedUser.nickname,
+            profileImageLink = userFollow.followedUser.profileImageLink
+        )
+    }
+
+    @Transactional
+    fun unfollow(
+        followingRequestDto: FollowingRequestDto
+    ){
+        val user = getValidUserByEmail(followingRequestDto.email)
+        val followedUser = getValidUser(followingRequestDto.userId)
+        val userFollow = userFollowRepository.findByFollowingUserAndFollowedUser(user, followedUser) ?: throw UserNotFoundException()
+        userFollowRepository.delete(userFollow)
+    }
+
+    @Transactional
+    fun getMyFollowingList(email: String): List<FollowUserResponseDto>{
+        val user = getValidUserByEmail(email)
+        return user.followingUsers.map {
+            FollowUserResponseDto(
+                id = it.id!!,
+                userId = it.followingUser.id!!,
+                userName = it.followingUser.userName,
+                nickname = it.followingUser.nickname,
+                profileImageLink = it.followingUser.profileImageLink
+            )
+        }
+    }
+
+    @Transactional
+    fun getFollowingListOfUser(userId:Long): List<FollowUserResponseDto>{
+        val user = getValidUser(userId)
+        return user.followingUsers.map {
+            FollowUserResponseDto(
+                id = it.id!!,
+                userId = it.followingUser.id!!,
+                userName = it.followingUser.userName,
+                nickname = it.followingUser.nickname,
+                profileImageLink = it.followingUser.profileImageLink
+            )
+        }
+    }
+
+    @Transactional
+    fun getMyFollowerList(email: String): List<FollowUserResponseDto>{
+        val user = getValidUserByEmail(email)
+        return user.followedUsers.map {
+            FollowUserResponseDto(
+                id = it.id!!,
+                userId = it.followedUser.id!!,
+                userName = it.followedUser.userName,
+                nickname = it.followedUser.nickname,
+                profileImageLink = it.followedUser.profileImageLink
+            )
+        }
+    }
+
+    @Transactional
+    fun getFollowerListOfUser(userId:Long): List<FollowUserResponseDto>{
+        val user = getValidUser(userId)
+        return user.followedUsers.map {
+            FollowUserResponseDto(
+                id = it.id!!,
+                userId = it.followedUser.id!!,
+                userName = it.followedUser.userName,
+                nickname = it.followedUser.nickname,
+                profileImageLink = it.followedUser.profileImageLink
+            )
+        }
+    }
+
     fun findValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email)
             ?: throw UserNotFoundException()
