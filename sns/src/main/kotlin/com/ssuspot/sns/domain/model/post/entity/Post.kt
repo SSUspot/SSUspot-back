@@ -1,5 +1,6 @@
 package com.ssuspot.sns.domain.model.post.entity
 
+import com.ssuspot.sns.application.dto.post.PostResponseDto
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.spot.entity.Spot
 import com.ssuspot.sns.domain.model.user.entity.User
@@ -50,4 +51,17 @@ class Post(
     @field:JoinColumn(name = "spot_id")
     val spot: Spot
 
-) : BaseTimeEntity()
+) : BaseTimeEntity() {
+    fun toDto(): PostResponseDto =
+        PostResponseDto(
+            id = id!!,
+            title = title,
+            content = content,
+            nickname = user.nickname,
+            imageUrl = imageUrl,
+            tags = postTags.map { it.tag.tagName },
+            spotId = spot.id!!,
+            createdAt = createdAt.toString(),
+            updatedAt = updatedAt.toString()
+        )
+}

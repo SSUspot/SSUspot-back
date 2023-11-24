@@ -130,18 +130,5 @@ class PostService(
             spot = spot
         )
 
-    private fun Post.toDto(): PostResponseDto =
-        PostResponseDto(
-            id = id!!,
-            title = title,
-            content = content,
-            nickname = user.nickname,
-            imageUrl = imageUrl,
-            tags = postTags.map { it.tag.tagName },
-            spotId = spot.id!!,
-            createdAt = createdAt.toString(),
-            updatedAt = updatedAt.toString()
-        )
-
     private fun toPageableLatestSort(page: Int, size: Int) = PageRequest.of(page - 1, size, Sort.Direction.DESC, "id")
 }
