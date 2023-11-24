@@ -29,7 +29,8 @@ class PostLikeController(
             LikeResponse(
                 like.id,
                 like.postId,
-                like.userNickname
+                like.userNickname,
+                like.pressed
             )
         )
     }
