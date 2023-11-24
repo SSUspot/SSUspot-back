@@ -4,9 +4,11 @@ import com.ssuspot.sns.application.dto.user.LoginDto
 import com.ssuspot.sns.application.dto.user.RegisterDto
 import com.ssuspot.sns.api.request.user.LoginRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
+import com.ssuspot.sns.api.request.user.UpdateUserDataRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
 import com.ssuspot.sns.api.response.user.UserResponse
 import com.ssuspot.sns.application.annotation.Auth
+import com.ssuspot.sns.application.dto.user.UpdateUserDataDto
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
@@ -80,13 +82,11 @@ class UserController (
     @PatchMapping("/api/users")
     fun updateUserProfile(
         @Auth authInfo: AuthInfo,
-        @RequestBody request: RegisterRequest
+        @RequestBody request: UpdateUserDataRequest
     ): ResponseEntity<UserResponse>{
         val user = userService.updateProfile(
-                authInfo.email,
-                RegisterDto(
+                UpdateUserDataDto(
                         authInfo.email,
-                        request.password,
                         request.userName,
                         request.nickname,
                         request.profileMessage,

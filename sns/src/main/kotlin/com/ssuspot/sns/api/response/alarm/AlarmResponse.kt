@@ -1,7 +1,8 @@
 package com.ssuspot.sns.api.response.alarm
 
-class AlarmResponse(
+data class AlarmResponse(
     val alarmId: Long,
+    val commentedUser: String,
     val articleTitle: String,
     val commentContent: String,
 )

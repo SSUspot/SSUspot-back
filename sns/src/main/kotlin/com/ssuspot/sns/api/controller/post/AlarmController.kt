@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController
 class AlarmController(
     val commentAlarmService: CommentAlarmService,
 ) {
-    @GetMapping("/api/alarms/")
+    @GetMapping("/api/alarms")
     fun getAlarms(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
@@ -24,6 +24,7 @@ class AlarmController(
             alarms.map {
                 AlarmResponse(
                     alarmId = it.commentAlarmId,
+                    commentedUser = it.commentedUser,
                     articleTitle = it.articleTitle,
                     commentContent = it.commentContent,
                 )

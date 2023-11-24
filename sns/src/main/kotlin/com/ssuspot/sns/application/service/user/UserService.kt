@@ -1,11 +1,8 @@
 package com.ssuspot.sns.application.service.user
 
 import com.ssuspot.sns.application.dto.common.JwtTokenDto
+import com.ssuspot.sns.application.dto.user.*
 import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
-import com.ssuspot.sns.application.dto.user.AuthTokenDto
-import com.ssuspot.sns.application.dto.user.LoginDto
-import com.ssuspot.sns.application.dto.user.RegisterDto
-import com.ssuspot.sns.application.dto.user.UserResponseDto
 import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
@@ -46,13 +43,12 @@ class UserService(
     // 사용자 프로필 수정 api
     @Transactional
     fun updateProfile(
-        email: String,
-        registerDto: RegisterDto
+        updateUserDataDto: UpdateUserDataDto
     ): UserResponseDto {
-        val user = getValidUserByEmail(email)
-        user.updateNickname(registerDto.nickname)
-        user.updateProfileMessage(registerDto.profileMessage)
-        user.updateProfileImageLink(registerDto.profileImageLink)
+        val user = getValidUserByEmail(updateUserDataDto.email)
+        user.updateNickname(updateUserDataDto.nickname)
+        user.updateProfileMessage(updateUserDataDto.profileMessage)
+        user.updateProfileImageLink(updateUserDataDto.profileImageLink)
         return user.toDto()
     }
 
