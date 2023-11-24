@@ -13,7 +13,6 @@ interface CustomPostRepository {
     fun findPostById(postId: Long, user: User): PostResponseDto?
     fun findPostsBySpotId(spotId: Long, user: User, pageable: Pageable): Page<PostResponseDto>
 
-    fun findPostsByUserId(userId: Long, pageable: Pageable): Page<Post>
-    fun findPostsByTagName(tagName: String, user:User, pageable: Pageable): Page<PostResponseDto>?
-    fun findPostsByTagNameIn(tagNames: List<String>, page: Pageable): Page<Post>?
+    fun findPostsByUserId(user: User, pageable: Pageable): Page<PostResponseDto>
+    fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto>?
 }

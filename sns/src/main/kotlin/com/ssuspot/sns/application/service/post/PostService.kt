@@ -47,10 +47,10 @@ class PostService(
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByUserId(
-            user.id!!,
+            user,
             toPageableLatestSort(getPostsRequest.page, getPostsRequest.size)
         )
-        return posts.content.map { it.toDto() }
+        return posts.content
     }
 
     fun deletePost(specificPostRequestDto: SpecificPostRequestDto) {
@@ -82,11 +82,12 @@ class PostService(
     }
 
     fun getPostsByUserId(getPostsRequest: GetUserPostsDto): List<PostResponseDto> {
+        val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByUserId(
-            getPostsRequest.userId,
+            user,
             toPageableLatestSort(getPostsRequest.page, getPostsRequest.size)
         )
-        return posts.content.map { it.toDto() }
+        return posts.content
     }
 
     fun findValidPostById(postId: Long): Post {

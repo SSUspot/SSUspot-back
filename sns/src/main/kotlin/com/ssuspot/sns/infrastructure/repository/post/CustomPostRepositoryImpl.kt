@@ -71,24 +71,30 @@ class CustomPostRepositoryImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun findPostsByUserId(userId: Long, pageable: Pageable): Page<Post> {
+    override fun findPostsByUserId(user: User, pageable: Pageable): Page<PostResponseDto> {
         val query = queryFactory.selectFrom(QPost.post)
-            .where(QPost.post.user.id.eq(userId))
+            .where(QPost.post.user.id.eq(user.id))
             .orderBy(QPost.post.createdAt.desc())
             .offset(pageable.offset)
             .limit(pageable.pageSize.toLong())
 
         val results = query.fetch()
         val total = queryFactory.selectFrom(QPost.post)
-            .where(QPost.post.user.id.eq(userId))
+            .where(QPost.post.user.id.eq(user.id))
             .fetchCount()
 
+        val postResponses = results.map { post ->
+            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            post.toDto().apply { this.hasLiked = hasLiked }
+        }
+
         return PageImpl(
-            results,
+            postResponses,
             pageable,
             total
         )
     }
+
 
     @Transactional(readOnly = true)
     override fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto> {
@@ -117,25 +123,5 @@ class CustomPostRepositoryImpl(
         }
 
         return PageImpl(postResponses, pageable, total)
-    }
-
-    @Transactional(readOnly = true)
-    override fun findPostsByTagNameIn(tagNames: List<String>, page: Pageable): Page<Post>? {
-        val post = QPost.post
-        val postTag = QPostTag.postTag
-        val result = queryFactory
-            .select(post)
-            .from(post)
-            .innerJoin(postTag).on(post.id.eq(postTag.post.id))
-            .where(postTag.tag.tagName.`in`(tagNames))
-            .orderBy(post.createdAt.desc())
-            .offset(page.offset)
-            .limit(page.pageSize.toLong())
-            .fetchResults()
-
-        val content = result.results
-        val total = result.total
-
-        return PageImpl(content, page, total)
     }
 }

@@ -56,9 +56,10 @@ class PostController(
         @RequestParam("page", defaultValue = "1") page: Int,
         @RequestParam("size", defaultValue = "10") size: Int,
         @RequestParam("sort", defaultValue = "postId") sort: String,
-        @PathVariable("userId") userId: Long
+        @PathVariable("userId") userId: Long,
+        @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
-        val posts = postService.getPostsByUserId(GetUserPostsDto(page, size, sort, userId))
+        val posts = postService.getPostsByUserId(GetUserPostsDto(page, size, sort, userId, authInfo.email))
         return ResponseEntity.ok(
             posts.map {
                 it.toResponseDto()
