@@ -2,6 +2,7 @@ package com.ssuspot.sns.application.service.user
 
 import com.ssuspot.sns.application.dto.common.JwtTokenDto
 import com.ssuspot.sns.application.dto.user.*
+import com.ssuspot.sns.domain.exceptions.user.AlreadyFollowedUserException
 import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
@@ -75,6 +76,7 @@ class UserService(
     ): FollowUserResponseDto{
         val user = getValidUserByEmail(followingRequestDto.email)
         val followedUser = getValidUser(followingRequestDto.userId)
+        if(userFollowRepository.findByFollowingUserAndFollowedUser(user, followedUser)!=null) throw AlreadyFollowedUserException()
         val userFollow = userFollowRepository.save(
             UserFollow(
                 followingUser = user,
