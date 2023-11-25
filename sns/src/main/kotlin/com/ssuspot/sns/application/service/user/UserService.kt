@@ -103,13 +103,13 @@ class UserService(
     @Transactional
     fun getMyFollowingList(email: String): List<FollowUserResponseDto>{
         val user = getValidUserByEmail(email)
-        return user.followingUsers.map {
+        return user.followedUsers.map {
             FollowUserResponseDto(
                 id = it.id!!,
-                userId = it.followingUser.id!!,
-                userName = it.followingUser.userName,
-                nickname = it.followingUser.nickname,
-                profileImageLink = it.followingUser.profileImageLink
+                userId = it.followedUser.id!!,
+                userName = it.followedUser.userName,
+                nickname = it.followedUser.nickname,
+                profileImageLink = it.followedUser.profileImageLink
             )
         }
     }
@@ -117,6 +117,20 @@ class UserService(
     @Transactional
     fun getFollowingListOfUser(userId:Long): List<FollowUserResponseDto>{
         val user = getValidUser(userId)
+        return user.followedUsers.map {
+            FollowUserResponseDto(
+                id = it.id!!,
+                userId = it.followedUser.id!!,
+                userName = it.followedUser.userName,
+                nickname = it.followedUser.nickname,
+                profileImageLink = it.followedUser.profileImageLink
+            )
+        }
+    }
+
+    @Transactional
+    fun getMyFollowerList(email: String): List<FollowUserResponseDto>{
+        val user = getValidUserByEmail(email)
         return user.followingUsers.map {
             FollowUserResponseDto(
                 id = it.id!!,
@@ -129,29 +143,15 @@ class UserService(
     }
 
     @Transactional
-    fun getMyFollowerList(email: String): List<FollowUserResponseDto>{
-        val user = getValidUserByEmail(email)
-        return user.followedUsers.map {
-            FollowUserResponseDto(
-                id = it.id!!,
-                userId = it.followedUser.id!!,
-                userName = it.followedUser.userName,
-                nickname = it.followedUser.nickname,
-                profileImageLink = it.followedUser.profileImageLink
-            )
-        }
-    }
-
-    @Transactional
     fun getFollowerListOfUser(userId:Long): List<FollowUserResponseDto>{
         val user = getValidUser(userId)
-        return user.followedUsers.map {
+        return user.followingUsers.map {
             FollowUserResponseDto(
                 id = it.id!!,
-                userId = it.followedUser.id!!,
-                userName = it.followedUser.userName,
-                nickname = it.followedUser.nickname,
-                profileImageLink = it.followedUser.profileImageLink
+                userId = it.followingUser.id!!,
+                userName = it.followingUser.userName,
+                nickname = it.followingUser.nickname,
+                profileImageLink = it.followingUser.profileImageLink
             )
         }
     }
