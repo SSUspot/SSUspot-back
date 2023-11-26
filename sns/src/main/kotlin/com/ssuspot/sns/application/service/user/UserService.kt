@@ -27,6 +27,25 @@ class UserService(
     private val applicationEventPublisher: ApplicationEventPublisher
 ) {
     @Transactional
+    fun getSpecificUser(
+        userId: Long,
+        email: String
+    ): UserInfoResponseDto {
+        val targetUser = getValidUser(userId)
+        val requestedUser = getValidUserByEmail(email)
+        val followed = userFollowRepository.findByFollowingUserAndFollowedUser(requestedUser, targetUser) != null
+        return UserInfoResponseDto(
+            id = targetUser.id!!,
+            email = targetUser.email,
+            userName = targetUser.userName,
+            nickname = targetUser.nickname,
+            profileMessage = targetUser.profileMessage,
+            profileImageLink = targetUser.profileImageLink,
+            followed = followed
+        )
+    }
+
+    @Transactional
     fun registerProcess(
         registerDto: RegisterDto
     ): UserResponseDto {

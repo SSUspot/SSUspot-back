@@ -6,6 +6,7 @@ import com.ssuspot.sns.api.request.user.RefreshRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
 import com.ssuspot.sns.api.request.user.UpdateUserDataRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
+import com.ssuspot.sns.api.response.user.UserInfoResponse
 import com.ssuspot.sns.api.response.user.UserResponse
 import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.user.*
@@ -81,6 +82,25 @@ class UserController(
                 user.nickname,
                 user.profileMessage,
                 user.profileImageLink
+            )
+        )
+    }
+
+    @GetMapping("/api/users/{userId}")
+    fun getUserInfo(
+        @PathVariable("userId") userId: Long,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<UserInfoResponse> {
+        val user = userService.getSpecificUser(userId, authInfo.email)
+        return ResponseEntity.ok().body(
+            UserInfoResponse(
+                user.id,
+                user.email,
+                user.userName,
+                user.nickname,
+                user.profileMessage,
+                user.profileImageLink,
+                user.followed
             )
         )
     }
