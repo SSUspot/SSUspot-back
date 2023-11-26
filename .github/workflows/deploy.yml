@@ -14,7 +14,16 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v2
         with:
-          java-version: 17
+          distribution: 'adopt'
+          java-version: '17'
+          java-package: 'jdk'
+          architecture: 'x64'
+          check-latest: false
+          server-id: 'github'
+          server-username: ${{ github.actor }}
+          server-password: ${{ secrets.GITHUB_TOKEN }}
+          overwrite-settings: true
+          job-status: 'success'
 
       - name: Grant execute permission for gradlew
         run: |
@@ -27,6 +36,7 @@ jobs:
           cd sns
           ./gradlew build
         shell: bash
+
 
 
 
