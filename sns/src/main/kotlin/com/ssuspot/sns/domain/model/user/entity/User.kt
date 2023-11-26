@@ -60,10 +60,10 @@ class User(
         val postLikes: MutableList<PostLike> = mutableListOf(),
 
         @field:OneToMany(mappedBy = "followingUser", cascade = [CascadeType.ALL])
-        val followedUsers: MutableList<UserFollow> = mutableListOf(),
+        val following: MutableList<UserFollow> = mutableListOf(),
 
         @field:OneToMany(mappedBy = "followedUser", cascade = [CascadeType.ALL])
-        val followingUsers: MutableList<UserFollow> = mutableListOf(),
+        val followers: MutableList<UserFollow> = mutableListOf(),
 
 ): BaseTimeEntity(){
         fun updateNickname(newNickname: String) {

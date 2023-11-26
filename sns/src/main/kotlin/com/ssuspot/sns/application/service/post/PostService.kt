@@ -44,6 +44,15 @@ class PostService(
         return customPostRepository.save(post).toDto()
     }
 
+    fun getFollowingPosts(getPostsRequest: GetFollowingPostsDto): List<PostResponseDto> {
+        val user = userService.findValidUserByEmail(getPostsRequest.email)
+        val posts = customPostRepository.findPostsByFollowingUsers(
+            user,
+            toPageableLatestSort(getPostsRequest.page, getPostsRequest.size)
+        )
+        return posts.content
+    }
+
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByUserId(
@@ -63,20 +72,29 @@ class PostService(
 
     fun getPostById(specificPostRequestDto: SpecificPostRequestDto): PostResponseDto {
         val user = userService.findValidUserByEmail(specificPostRequestDto.email)
-        val post = customPostRepository.findPostById(specificPostRequestDto.postId, user) ?: throw PostNotFoundException()
+        val post =
+            customPostRepository.findPostById(specificPostRequestDto.postId, user) ?: throw PostNotFoundException()
         return post
     }
 
-    fun getPostsBySpotId(spotId: Long, email: String, page: Int, size: Int): List<PostResponseDto> {
-        val user = userService.findValidUserByEmail(email)
-        val posts = customPostRepository.findPostsBySpotId(spotId, user, toPageableLatestSort(page, size))
+    fun getPostsBySpotId(getPostsBySpotIdDto: GetPostsBySpotIdDto): List<PostResponseDto> {
+        val user = userService.findValidUserByEmail(getPostsBySpotIdDto.email)
+        val posts = customPostRepository.findPostsBySpotId(
+            getPostsBySpotIdDto.spotId,
+            user,
+            toPageableLatestSort(getPostsBySpotIdDto.page, getPostsBySpotIdDto.size)
+        )
         return posts.content
     }
 
     fun findPostsByTagName(request: GetTagRequestDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(request.email)
         val posts =
-            customPostRepository.findPostsByTagName(request.tagName, user, toPageableLatestSort(request.page, request.size))
+            customPostRepository.findPostsByTagName(
+                request.tagName,
+                user,
+                toPageableLatestSort(request.page, request.size)
+            )
                 ?: throw PostNotFoundException()
         return posts.content
     }

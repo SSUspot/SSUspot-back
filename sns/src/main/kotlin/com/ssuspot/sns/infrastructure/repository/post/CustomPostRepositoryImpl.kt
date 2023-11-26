@@ -3,11 +3,10 @@ package com.ssuspot.sns.infrastructure.repository.post
 import com.querydsl.jpa.impl.JPAQueryFactory
 import com.ssuspot.sns.application.dto.post.PostResponseDto
 import com.ssuspot.sns.domain.exceptions.post.PostNotFoundException
-import com.ssuspot.sns.domain.model.post.entity.Post
-import com.ssuspot.sns.domain.model.post.entity.QPost
-import com.ssuspot.sns.domain.model.post.entity.QPostTag
-import com.ssuspot.sns.domain.model.post.entity.QTag
+import com.ssuspot.sns.domain.model.post.entity.*
 import com.ssuspot.sns.domain.model.post.repository.CustomPostRepository
+import com.ssuspot.sns.domain.model.user.entity.QUser
+import com.ssuspot.sns.domain.model.user.entity.QUserFollow
 import com.ssuspot.sns.domain.model.user.entity.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
@@ -124,4 +123,42 @@ class CustomPostRepositoryImpl(
 
         return PageImpl(postResponses, pageable, total)
     }
+
+    @Transactional(readOnly = true)
+    override fun findPostsByFollowingUsers(user: User, pageable: Pageable): Page<PostResponseDto> {
+        val post = QPost.post
+        val userFollow = QUserFollow.userFollow
+        val followingUser = QUser.user
+        val postLike = QPostLike.postLike
+
+        val followingUsers = queryFactory.selectFrom(userFollow)
+            .where(userFollow.followingUser.eq(user))
+            .select(userFollow.followedUser)
+            .fetch()
+
+        val posts = queryFactory.selectFrom(post)
+            .join(post.user, followingUser)
+            .where(followingUser.`in`(followingUsers))
+            .orderBy(post.createdAt.desc())
+            .offset(pageable.offset)
+            .limit(pageable.pageSize.toLong())
+            .fetch()
+
+
+        val postResponses = posts.map { post ->
+            val hasLiked = queryFactory.selectFrom(postLike)
+                .where(postLike.post.eq(post), postLike.user.eq(user))
+                .fetchCount() > 0
+            post.toDto().apply { this.hasLiked = hasLiked }
+        }
+
+        val total = queryFactory.selectFrom(post)
+            .where(post.user.`in`(followingUsers))
+            .fetchCount()
+
+        return PageImpl(postResponses, pageable, total)
+    }
+
+
+
 }

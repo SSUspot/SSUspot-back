@@ -15,4 +15,6 @@ interface CustomPostRepository {
 
     fun findPostsByUserId(user: User, pageable: Pageable): Page<PostResponseDto>
     fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto>?
+
+    fun findPostsByFollowingUsers(user: User, pageable: Pageable): Page<PostResponseDto>
 }

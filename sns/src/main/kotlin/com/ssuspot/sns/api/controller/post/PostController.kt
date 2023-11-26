@@ -21,6 +21,21 @@ import org.springframework.web.bind.annotation.RestController
 class PostController(
     private val postService: PostService
 ) {
+    @GetMapping("/api/posts")
+    fun getFollowingPosts(
+        @RequestParam("page", defaultValue = "1") page: Int,
+        @RequestParam("size", defaultValue = "10") size: Int,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<List<PostResponse>> {
+        val posts = postService.getFollowingPosts(GetFollowingPostsDto(authInfo.email, page, size))
+        return ResponseEntity.ok(
+            posts.map {
+                it.toResponseDto()
+            }
+        )
+    }
+
+
     @GetMapping("/api/posts/{postId}")
     fun getSpecificPost(
         @PathVariable postId: Long,
@@ -75,7 +90,14 @@ class PostController(
         @PathVariable("spotId") spotId: Long,
         @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
-        val posts = postService.getPostsBySpotId(spotId, authInfo.email, page, size)
+        val posts = postService.getPostsBySpotId(
+            GetPostsBySpotIdDto(
+                spotId,
+                authInfo.email,
+                page,
+                size,
+            )
+        )
         return ResponseEntity.ok(
             posts.map {
                 it.toResponseDto()
