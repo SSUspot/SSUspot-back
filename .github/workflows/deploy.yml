@@ -1,58 +1,29 @@
-on:			
-  push:			
-    branches: [ "master" ]
+name: ssuspot-deploy
 
-env:			
-  AWS_REGION: ap-northeast-2
-  S3_BUCKET_NAME: ssuspot-bucket
-  CODE_DEPLOY_APPLICATION_NAME: ssuspot-codedeploy
-  CODE_DEPLOY_DEPLOYMENT_GROUP_NAME: ssuspot-codedeploy-group
+on:
+  workflow_dispatch:
 
-permissions:		
-  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
 
-jobs:			
-  deploy:				
-    name: Deploy			
-    runs-on: ubuntu-latest	
-    environment: production
     steps:
-    - name: Checkout
-      uses: actions/checkout@v3		
+      - name: Checkout
+        uses: actions/checkout@v2
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3	
-      with:
-        distribution: 'temurin'
-        java-version: '17'
-        cache: 'gradle'
-        
-    - name: Grant execute permission for gradlew
-      run: chmod +x ./sns/gradlew
-      
-    - name: Build with gradle 
-      run: cd sns && ./gradlew build --no-daemon -x test
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1	
-      with: 
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: ${{ env.AWS_REGION }}
-        
-      
-    - name: Upload to AWS S3
-      run: |
-        aws deploy push \
-          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
-          --ignore-hidden-files \
-          --s3-location s3://${{env.S3_BUCKET_NAME}}/$GITHUB_SHA.zip \
-          --source sns
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+        shell: bash
 
-    - name: Deploy to AWS EC2 from S3
-      run: |
-        aws deploy create-deployment \
-          --application-name ${{ env.CODE_DEPLOY_APPLICATION_NAME }} \
-          --deployment-config-name CodeDeployDefault.AllAtOnce \
-          --deployment-group-name ${{ env.CODE_DEPLOY_DEPLOYMENT_GROUP_NAME }} \
-          --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
+      - name: Build with Gradle
+        run: |
+          cd sns
+          ./gradlew build
+        shell: bash
+
+
