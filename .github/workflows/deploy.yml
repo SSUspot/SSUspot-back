@@ -17,7 +17,9 @@ jobs:
           java-version: 1.8
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: |
+          cd sns
+          chmod +x gradlew
         shell: bash
 
       - name: Build with Gradle
@@ -25,5 +27,6 @@ jobs:
           cd sns
           ./gradlew build
         shell: bash
+
 
 
