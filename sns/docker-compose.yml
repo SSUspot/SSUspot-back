@@ -17,5 +17,9 @@ services:
   redis:
     container_name: ssuspot_sns_redis
     image: redis:latest
+    command:
+      - /bin/sh
+      - -c
+      - redis-server --requirepass "qualifiedOption565"
     ports:
       - "6379:6379"

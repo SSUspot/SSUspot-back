@@ -21,6 +21,7 @@ spring:
   redis:
     host: ${SSUSPOT_REDIS_HOST}
     port: ${SSUSPOT_REDIS_PORT}
+    password: qualifiedOption565
 
 app:
   jwt:
