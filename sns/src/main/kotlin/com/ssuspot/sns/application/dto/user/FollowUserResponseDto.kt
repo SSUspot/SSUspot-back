@@ -1,6 +1,6 @@
 package com.ssuspot.sns.application.dto.user
 
-import com.ssuspot.sns.api.request.user.FollowUserResponse
+import com.ssuspot.sns.api.response.user.FollowUserResponse
 
 data class FollowUserResponseDto(
         val id: Long,

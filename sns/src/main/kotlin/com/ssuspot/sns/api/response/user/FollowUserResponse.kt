@@ -1,4 +1,4 @@
-package com.ssuspot.sns.api.request.user
+package com.ssuspot.sns.api.response.user
 
 class FollowUserResponse(
     val id: Long,

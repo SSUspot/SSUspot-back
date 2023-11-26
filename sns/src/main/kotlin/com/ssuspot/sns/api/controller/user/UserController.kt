@@ -1,16 +1,14 @@
 package com.ssuspot.sns.api.controller.user
 
-import com.ssuspot.sns.api.request.user.FollowUserResponse
-import com.ssuspot.sns.application.dto.user.LoginDto
-import com.ssuspot.sns.application.dto.user.RegisterDto
+import com.ssuspot.sns.api.response.user.FollowUserResponse
 import com.ssuspot.sns.api.request.user.LoginRequest
+import com.ssuspot.sns.api.request.user.RefreshRequest
 import com.ssuspot.sns.api.request.user.RegisterRequest
 import com.ssuspot.sns.api.request.user.UpdateUserDataRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
 import com.ssuspot.sns.api.response.user.UserResponse
 import com.ssuspot.sns.application.annotation.Auth
-import com.ssuspot.sns.application.dto.user.FollowingRequestDto
-import com.ssuspot.sns.application.dto.user.UpdateUserDataDto
+import com.ssuspot.sns.application.dto.user.*
 import com.ssuspot.sns.application.service.user.UserService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
 import org.springframework.http.ResponseEntity
@@ -128,7 +126,20 @@ class UserController(
         )
     }
 
-    //following
+    @PostMapping("/api/users/refresh")
+    fun refresh(
+        @RequestBody request: RefreshRequest
+    ): ResponseEntity<LoginResponse> {
+        val token = userService.refresh(
+            RefreshTokenDto(
+                request.refreshToken
+            )
+        )
+        return ResponseEntity.ok(
+            LoginResponse(token)
+        )
+    }
+
     @PostMapping("/api/users/following/{userId}")
     fun follow(
         @PathVariable("userId") userId: Long,

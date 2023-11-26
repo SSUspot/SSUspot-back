@@ -158,6 +158,18 @@ class UserService(
         }
     }
 
+    @Transactional
+    fun refresh(dto: RefreshTokenDto): AuthTokenDto {
+        val email = jwtTokenProvider.getUserEmailFromToken(dto.refreshToken)
+        val user = getValidUserByEmail(email)
+        val accessToken = generateAccessToken(user.email)
+        val refreshToken = generateRefreshToken(user.email)
+
+        // TODO: refresh token 캐시에 업데이트 하는 코드 작성 필요
+
+        return AuthTokenDto(accessToken, refreshToken)
+    }
+
     fun findValidUserByEmail(email: String): User {
         return userRepository.findByEmail(email)
             ?: throw UserNotFoundException()
