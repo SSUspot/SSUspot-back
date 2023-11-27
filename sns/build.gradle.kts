@@ -66,6 +66,9 @@ dependencies {
 	implementation("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation("com.amazonaws:aws-java-sdk-core:1.12.385")
 	implementation("com.amazonaws:aws-java-sdk-s3:1.12.385")
+
+	// read metadata
+	implementation("com.drewnoakes:metadata-extractor:2.16.0")
 }
 
 tasks.withType<KotlinCompile> {
