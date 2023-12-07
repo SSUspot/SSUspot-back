@@ -20,6 +20,8 @@ class SpotService(
                 Spot(
                         spotName = createSpotDto.spotName,
                         spotThumbnailImageLink = createSpotDto.spotThumbnailImageLink,
+                        spotAddress = createSpotDto.spotAddress,
+                        spotInfo = createSpotDto.spotInfo,
                         spotLevel = createSpotDto.spotLevel,
                         latitude = createSpotDto.latitude,
                         longitude = createSpotDto.longitude
@@ -29,6 +31,8 @@ class SpotService(
                 savedSpot.id,
                 savedSpot.spotName,
                 savedSpot.spotThumbnailImageLink,
+                savedSpot.spotAddress,
+                savedSpot.spotInfo,
                 savedSpot.spotLevel,
                 savedSpot.latitude,
                 savedSpot.longitude
@@ -41,6 +45,8 @@ class SpotService(
                 foundSpot.id,
                 foundSpot.spotName,
                 foundSpot.spotThumbnailImageLink,
+                foundSpot.spotAddress,
+                foundSpot.spotInfo,
                 foundSpot.spotLevel,
                 foundSpot.latitude,
                 foundSpot.longitude

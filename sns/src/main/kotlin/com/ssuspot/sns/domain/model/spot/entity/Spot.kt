@@ -16,6 +16,13 @@ class Spot(
         @field:Column(name = "spot_thumbnail_image_link")
         var spotThumbnailImageLink: String,
 
+        @field:Column(name = "spot_address")
+        var spotAddress: String,
+
+        @field:Lob
+        @field:Column(name = "spot_info")
+        var spotInfo: String,
+
         @field:Column(name = "spot_level")
         var spotLevel: Int,
 

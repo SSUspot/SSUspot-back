@@ -69,6 +69,10 @@ dependencies {
 
 	// read metadata
 	implementation("com.drewnoakes:metadata-extractor:2.16.0")
+
+	// kafka streams
+	implementation("org.springframework.kafka:spring-kafka")
+	implementation("org.apache.kafka:kafka-streams")
 }
 
 tasks.withType<KotlinCompile> {

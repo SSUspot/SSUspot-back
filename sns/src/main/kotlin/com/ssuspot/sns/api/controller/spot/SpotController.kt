@@ -15,14 +15,28 @@ class SpotController(
     @PostMapping("/api/spots")
     fun createSpot(
         @RequestBody createSpotRequest: CreateSpotRequest
-    ) {
-        spotService.createSpot(
+    ): ResponseEntity<SpotResponse> {
+        val savedSpot = spotService.createSpot(
             CreateSpotDto(
                 createSpotRequest.spotName,
                 createSpotRequest.spotThumbnailImageLink,
+                createSpotRequest.spotAddress,
+                createSpotRequest.spotInfo,
                 createSpotRequest.spotLevel,
                 createSpotRequest.latitude,
                 createSpotRequest.longitude
+            )
+        )
+        return ResponseEntity.ok(
+            SpotResponse(
+                savedSpot.id!!,
+                savedSpot.spotName,
+                savedSpot.spotThumbnailImageLink,
+                savedSpot.spotAddress,
+                savedSpot.spotInfo,
+                savedSpot.spotLevel,
+                savedSpot.latitude,
+                savedSpot.longitude
             )
         )
     }
@@ -38,6 +52,8 @@ class SpotController(
                     it.id!!,
                     it.spotName,
                     it.spotThumbnailImageLink,
+                    it.spotAddress,
+                    it.spotInfo,
                     it.spotLevel,
                     it.latitude,
                     it.longitude
@@ -56,6 +72,8 @@ class SpotController(
                 spot.id!!,
                 spot.spotName,
                 spot.spotThumbnailImageLink,
+                spot.spotAddress,
+                spot.spotInfo,
                 spot.spotLevel,
                 spot.latitude,
                 spot.longitude
