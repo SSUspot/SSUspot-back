@@ -131,7 +131,7 @@ class PostController(
                 request.title,
                 request.content,
                 authInfo.email,
-                request.imageUrl,
+                request.imageUrls,
                 request.tags,
                 request.spotId
             )

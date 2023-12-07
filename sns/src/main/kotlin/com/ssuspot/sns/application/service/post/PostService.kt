@@ -141,14 +141,6 @@ class PostService(
     }
 
 
-    private fun CreatePostRequestDto.toEntity(spot: Spot, user: User): Post =
-        Post(
-            title = title,
-            user = user,
-            content = content,
-            imageUrl = imageUrls,
-            spot = spot
-        )
 
     private fun toPageableLatestSort(page: Int, size: Int) = PageRequest.of(page - 1, size, Sort.Direction.DESC, "id")
 }

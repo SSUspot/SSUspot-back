@@ -46,8 +46,15 @@ class ImageService(
             savedImage.imageUrl
         )
     }
-    fun uploadMultipleFiles(files: List<MultipartFile>): StorageResponseDto {
+    fun uploadMultipleFiles(files: List<MultipartFile>, email: String): List<ImageDto> {
         val imageUrls = mutableListOf<String>()
+        val user = userService.findValidUserByEmail(email)
+
+        val metadata = ImageMetadataReader.readMetadata(files[0].inputStream)
+        val directory = metadata.getFirstDirectoryOfType(com.drew.metadata.exif.GpsDirectory::class.java)
+        val latitude = directory?.getGeoLocation()?.latitude ?: 0.0
+        val longitude = directory?.getGeoLocation()?.longitude?: 0.0
+
 
         for (file in files) {
             val fileObj: File = convertMultiPartFileToFile(file)
@@ -56,7 +63,24 @@ class ImageService(
             imageUrls.add(s3Client.getUrl(bucketName, fileName).toString())
             fileObj.delete()
         }
-        return StorageResponseDto(imageUrls.joinToString(","))
+        val savedImages = imageRepository.saveAll(
+            imageUrls.map {
+                Image(
+                    imageUrl = it,
+                    user = user,
+                    latitude = latitude,
+                    longitude = longitude
+                )
+            }
+        )
+
+        return savedImages.map {
+            ImageDto(
+                it.id!!,
+                it.user.id!!,
+                it.imageUrl
+            )
+        }
     }
     //추후 이미지 여러개 업로드로 수정 가능성 있음
     fun uploadSingleFile(file: MultipartFile): StorageResponseDto {

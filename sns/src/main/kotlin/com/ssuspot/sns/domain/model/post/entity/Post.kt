@@ -35,8 +35,8 @@ class Post(
     @field:Column(name = "rating")
     var rating: Double? = 0.0,
 
-    @field:Column(name = "image_url")
-    var imageUrl: String = "",
+    @field:ElementCollection
+    var imageUrls: List<String> = listOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
     val comments: MutableList<Comment> = mutableListOf(),
@@ -57,8 +57,8 @@ class Post(
             id = id!!,
             title = title,
             content = content,
-            nickname = user.nickname,
-            imageUrl = imageUrl,
+            user = user.toDto(),
+            imageUrls = imageUrls,
             tags = postTags.map { it.tag.tagName },
             spotId = spot.id!!,
             createdAt = createdAt.toString(),

@@ -17,16 +17,18 @@ class ImageController(
 ) {
     @PostMapping("/api/images")
     fun uploadImage(
-        @RequestParam("image") image: MultipartFile,
+        @RequestParam("image") images: List<MultipartFile>,
         @Auth authInfo: AuthInfo
-    ): ResponseEntity<ImageResponse> {
-        val savedImage = imageService.uploadSingleImage(image, authInfo.email)
+    ): ResponseEntity<List<ImageResponse>> {
+        val savedImages = imageService.uploadMultipleFiles(images, authInfo.email)
         return ResponseEntity.ok(
-            ImageResponse(
-                savedImage.imageId,
-                savedImage.userId,
-                savedImage.imageUrl
-            )
+            savedImages.map {
+                ImageResponse(
+                    imageId = it.imageId,
+                    userId = it.userId,
+                    imageUrl = it.imageUrl
+                )
+            }
         )
     }
 }
