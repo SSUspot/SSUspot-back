@@ -30,12 +30,7 @@ class CommentController(
         )
         return ResponseEntity.ok(
             comments.map {
-                CommentResponse(
-                    id = it.id,
-                    postId = it.postId,
-                    nickname = it.nickname,
-                    content = it.content,
-                )
+                it.toResponseDto()
             }
         )
     }
@@ -46,12 +41,7 @@ class CommentController(
     ): ResponseEntity<CommentResponse> {
         val comment = commentService.getCommentById(commentId)
         return ResponseEntity.ok(
-            CommentResponse(
-                id = comment.id,
-                postId = comment.postId,
-                nickname = comment.nickname,
-                content = comment.content,
-            )
+            comment.toResponseDto()
         )
     }
 
@@ -69,12 +59,7 @@ class CommentController(
             )
         )
         return ResponseEntity.ok().body(
-            CommentResponse(
-                id = savedComment.id,
-                postId = savedComment.postId,
-                nickname = savedComment.nickname,
-                content = savedComment.content,
-            )
+            savedComment.toResponseDto()
         )
     }
 
@@ -87,16 +72,10 @@ class CommentController(
     ): ResponseEntity<CommentResponse> {
         val updatedComment = commentService.updateComment(commentId, updateCommentRequest.content, authInfo.email)
         return ResponseEntity.ok().body(
-            CommentResponse(
-                id = updatedComment.id,
-                postId = updatedComment.postId,
-                nickname = updatedComment.nickname,
-                content = updatedComment.content,
-            )
+            updatedComment.toResponseDto()
         )
     }
 
-    //delete comment
     @DeleteMapping("/api/comments/{commentId}")
     fun deleteComment(
         @PathVariable commentId: Long,

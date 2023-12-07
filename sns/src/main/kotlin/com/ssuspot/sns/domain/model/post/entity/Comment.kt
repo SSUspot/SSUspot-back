@@ -1,5 +1,7 @@
 package com.ssuspot.sns.domain.model.post.entity
 
+import com.ssuspot.sns.api.response.post.CommentResponse
+import com.ssuspot.sns.application.dto.post.CommentResponseDto
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.user.entity.User
 import javax.persistence.*
@@ -26,4 +28,11 @@ class Comment(
     fun update(content: String) {
         this.content = content
     }
+    fun toDto(): CommentResponseDto =
+        CommentResponseDto(
+            id = id!!,
+            postId = post.id!!,
+            user = user.toDto(),
+            content = content,
+        )
 }

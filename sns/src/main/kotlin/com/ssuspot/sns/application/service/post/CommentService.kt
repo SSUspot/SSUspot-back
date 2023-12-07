@@ -85,21 +85,6 @@ class CommentService(
         }
     }
 
-    private fun CreateCommentDto.toEntity(post: Post, user: User): Comment =
-        Comment(
-            post = post,
-            user = user,
-            content = content,
-        )
-
-    private fun Comment.toDto(): CommentResponseDto =
-        CommentResponseDto(
-            id = id!!,
-            postId = post.id!!,
-            nickname = user.nickname,
-            content = content,
-        )
-
     fun findValidCommentByCommentId(commentId: Long): Comment {
         return commentRepository.findCommentById(commentId) ?: throw CommentNotFoundException()
     }
