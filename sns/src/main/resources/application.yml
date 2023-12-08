@@ -13,7 +13,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
     open-in-view: false
-  #max file size = 10MB로 설정
+  kafka:
+    bootstrap-servers: localhost:9092
+    streams:
+      application-id: ssuspot-sns
+      properties:
+        default:
+          key:
+            serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+          value:
+            serde: org.apache.kafka.common.serialization.Serdes$StringSerde
 
   servlet:
     multipart:
