@@ -35,7 +35,7 @@ class Post(
     @field:Column(name = "rating")
     var rating: Double? = 0.0,
 
-    @field:ElementCollection
+    @field:ElementCollection(fetch = FetchType.EAGER)
     var imageUrls: List<String> = listOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])

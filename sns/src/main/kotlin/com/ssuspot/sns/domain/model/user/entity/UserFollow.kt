@@ -1,5 +1,7 @@
 package com.ssuspot.sns.domain.model.user.entity
 
+import com.ssuspot.sns.application.dto.user.FollowUserResponseDto
+import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import javax.persistence.*
 
 @Entity
@@ -16,4 +18,13 @@ class UserFollow(
     @field:ManyToOne(fetch = FetchType.LAZY)
     @field:JoinColumn(name = "followed_user_id")
     val followedUser: User
-)
+): BaseTimeEntity() {
+    fun toDto(): FollowUserResponseDto =
+        FollowUserResponseDto(
+            id = id!!,
+            userId = followedUser.id!!,
+            nickname = followedUser.nickname,
+            userName = followedUser.userName,
+            profileImageLink = followedUser.profileImageLink
+        )
+}

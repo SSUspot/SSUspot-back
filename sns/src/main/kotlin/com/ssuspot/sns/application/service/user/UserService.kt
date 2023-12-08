@@ -124,7 +124,7 @@ class UserService(
     @Transactional
     fun getMyFollowingList(email: String): List<FollowUserResponseDto>{
         val user = getValidUserByEmail(email)
-        return user.followers.map {
+        return user.following.map {
             FollowUserResponseDto(
                 id = it.id!!,
                 userId = it.followedUser.id!!,
@@ -138,7 +138,7 @@ class UserService(
     @Transactional
     fun getFollowingListOfUser(userId:Long): List<FollowUserResponseDto>{
         val user = getValidUser(userId)
-        return user.followers.map {
+        return user.following.map {
             FollowUserResponseDto(
                 id = it.id!!,
                 userId = it.followedUser.id!!,

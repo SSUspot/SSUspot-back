@@ -21,10 +21,4 @@ class PostTagService(
         val savedPostTag = postTagRepository.save(postTag)
         return savedPostTag.toDto()
     }
-    private fun PostTag.toDto(): PostTagDto {
-        return PostTagDto(
-            postId = this.post.id!!,
-            tagId = this.tag.id!!
-        )
-    }
 }
