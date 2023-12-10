@@ -21,6 +21,22 @@ import org.springframework.web.bind.annotation.RestController
 class PostController(
     private val postService: PostService
 ) {
+    @GetMapping("/api/posts/recommend")
+    fun getRecommendPosts(
+        @RequestParam("page", defaultValue = "1") page: Int,
+        @RequestParam("size", defaultValue = "10") size: Int,
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<List<PostResponse>> {
+        val posts = postService.getRecommendedPosts(GetRecommendedPostsDto(authInfo.email, page, size))
+        return ResponseEntity.ok(
+            posts.map {
+                it.toResponseDto()
+            }
+        )
+    }
+
+
+
     @GetMapping("/api/posts")
     fun getFollowingPosts(
         @RequestParam("page", defaultValue = "1") page: Int,

@@ -159,6 +159,59 @@ class CustomPostRepositoryImpl(
         return PageImpl(postResponses, pageable, total)
     }
 
+    @Transactional(readOnly = true)
+    override fun findRecommendedPosts(user: User, pageable: Pageable): Page<PostResponseDto> {
+        val post = QPost.post
+        val userFollow = QUserFollow.userFollow
+        val postLike = QPostLike.postLike
 
+        // 현재 사용자가 팔로우하는 사용자들을 가져옴
+        val followingUsers = queryFactory
+            .selectFrom(userFollow)
+            .where(userFollow.followingUser.eq(user))
+            .select(userFollow.followedUser)
+            .fetch()
 
+        // 인기 있는 게시물 ID 가져오기
+        val popularPostIds = queryFactory
+            .select(postLike.post.id)
+            .from(postLike)
+            .where(postLike.user.`in`(followingUsers))
+            .groupBy(postLike.post.id)
+            .orderBy(postLike.post.count().desc())
+            .limit(pageable.pageSize.toLong())
+            .offset(pageable.offset)
+            .fetch()
+
+        // 추천할 게시글이 없는 경우 최신 게시글 가져오기
+        val posts = if (popularPostIds.isEmpty()) {
+            queryFactory
+                .selectFrom(post)
+                .orderBy(post.createdAt.desc()) // 최신 게시물 기준으로 정렬
+                .limit(pageable.pageSize.toLong())
+                .offset(pageable.offset)
+                .fetch()
+        } else {
+            queryFactory
+                .selectFrom(post)
+                .where(post.id.`in`(popularPostIds))
+                .fetch()
+        }
+
+        // 게시물 응답 준비
+        val postResponses = posts.map { post ->
+            val hasLiked = queryFactory
+                .selectFrom(postLike)
+                .where(postLike.post.eq(post), postLike.user.eq(user))
+                .fetchCount() > 0
+            post.toDto().apply { this.hasLiked = hasLiked }
+        }
+
+        val total = queryFactory
+            .selectFrom(post)
+            .where(post.id.`in`(posts.map { it.id }))
+            .fetchCount()
+
+        return PageImpl(postResponses, pageable, total)
+    }
 }

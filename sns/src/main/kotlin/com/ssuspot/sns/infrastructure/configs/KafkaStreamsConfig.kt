@@ -52,4 +52,5 @@ class KafkaStreamsConfig {
         return likeEvents.count { it.timestamp >= twentyFourHoursAgo }.toLong()
     }
 }
-*/
+
+ */

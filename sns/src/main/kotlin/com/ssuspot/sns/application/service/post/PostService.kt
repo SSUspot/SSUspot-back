@@ -24,6 +24,15 @@ class PostService(
     private val tagService: TagService
 ) {
     @Transactional
+    fun getRecommendedPosts(getRecommendPostsDto: GetRecommendedPostsDto): List<PostResponseDto> {
+        val user = userService.findValidUserByEmail(getRecommendPostsDto.email)
+        val posts = customPostRepository.findRecommendedPosts(
+            user,
+            toPageableLatestSort(getRecommendPostsDto.page, getRecommendPostsDto.size)
+        )
+        return posts.content
+    }
+    @Transactional
     fun createPost(createPostRequestDto: CreatePostRequestDto): PostResponseDto {
         val post = createPostRequestDto.toEntity(
             spotService.findValidSpot(createPostRequestDto.spotId),

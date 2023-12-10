@@ -3,6 +3,7 @@ package com.ssuspot.sns.infrastructure.kafka
 import com.ssuspot.sns.infrastructure.configs.KafkaStreamsConfig
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
+
 @Component
 class LikeEventProcessor {
     @Autowired

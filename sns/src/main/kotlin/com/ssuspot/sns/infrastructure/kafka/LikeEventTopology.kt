@@ -38,10 +38,6 @@ class LikeEventTopology(
 
         processedLikesStream.to("processed-likes-topic", Produced.with(Serdes.String(), JsonSerde<RatedLikeEvent>()))
     }
-
-
-
-
 }
 
  */
