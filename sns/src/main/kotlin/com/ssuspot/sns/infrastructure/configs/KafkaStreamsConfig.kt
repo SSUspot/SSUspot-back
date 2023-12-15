@@ -1,6 +1,7 @@
 package com.ssuspot.sns.infrastructure.configs
-/*
+
 import com.ssuspot.sns.domain.model.post.event.LikeDataStoreEvent
+import com.ssuspot.sns.infrastructure.kafka.LikeCountService
 import com.ssuspot.sns.infrastructure.kafka.LikeEventTopology
 import org.apache.kafka.streams.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -12,7 +13,7 @@ import java.time.Instant
 import java.util.Properties
 
 @Configuration
-class KafkaStreamsConfig {
+class KafkaStreamsConfig: LikeCountService {
 
     @Autowired
     private lateinit var likeEventTopology: LikeEventTopology
@@ -44,7 +45,7 @@ class KafkaStreamsConfig {
         return kafkaStreams.store(storeQueryParameters)
     }
 
-    fun getLikeCount(userId: String, hashtag: String): Long {
+    override fun getLikeCount(userId: String, hashtag: String): Long {
         val store = userHashtagLikesStore()
         val likeEvents = store.get("$userId-$hashtag") ?: emptyList()
         val currentTime = Instant.now().toEpochMilli()
@@ -53,4 +54,3 @@ class KafkaStreamsConfig {
     }
 }
 
- */

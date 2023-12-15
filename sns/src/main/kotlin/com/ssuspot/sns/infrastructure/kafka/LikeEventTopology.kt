@@ -1,5 +1,5 @@
 package com.ssuspot.sns.infrastructure.kafka
-/*
+
 import com.ssuspot.sns.domain.model.post.event.LikeDataStoreEvent
 import com.ssuspot.sns.domain.model.post.event.RatedLikeEvent
 import com.ssuspot.sns.infrastructure.configs.KafkaStreamsConfig
@@ -14,9 +14,11 @@ import org.springframework.stereotype.Component
 
 @Component
 class LikeEventTopology(
-    private val likeEventProcessor: LikeEventProcessor
+    private val likeEventProcessor: LikeEventProcessor,
+    private val likeCountService: LikeCountService
 ) {
-    @Autowired
+
+
     private lateinit var kafkaStreamsConfig: KafkaStreamsConfig
     fun buildTopology(builder: StreamsBuilder) {
         val storeName = "user-hashtag-likes-store"
@@ -31,7 +33,7 @@ class LikeEventTopology(
         )
 
         val processedLikesStream = likeEventsStream.mapValues { likeEvent ->
-            val likeCount = kafkaStreamsConfig.getLikeCount(likeEvent.userId, likeEvent.tags.get(0))
+            val likeCount = likeCountService.getLikeCount(likeEvent.userId, likeEvent.tags.get(0))
             val additionalScore = likeEventProcessor.calculateAdditionalScore(likeEvent.userId, likeEvent.postId, likeCount)
             RatedLikeEvent(likeEvent.userId, likeEvent.postId, likeEvent.rating + additionalScore, likeEvent.timestamp)
         }
@@ -39,5 +41,3 @@ class LikeEventTopology(
         processedLikesStream.to("processed-likes-topic", Produced.with(Serdes.String(), JsonSerde<RatedLikeEvent>()))
     }
 }
-
- */
