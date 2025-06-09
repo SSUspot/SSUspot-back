@@ -3,6 +3,7 @@ package com.ssuspot.sns.infrastructure.configs
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ssuspot.sns.infrastructure.security.JwtAuthenticationFilter
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
+import com.ssuspot.sns.infrastructure.security.RateLimitingFilter
 import com.ssuspot.sns.infrastructure.security.UserAccessDeniedHandler
 import com.ssuspot.sns.infrastructure.security.UserAuthenticationEntryPoint
 import org.springframework.context.annotation.Bean
@@ -18,6 +19,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(
     private val objectMapper: ObjectMapper,
     private val jwtTokenProvider: JwtTokenProvider,
+    private val rateLimitingFilter: RateLimitingFilter,
     private val userAuthenticationEntryPoint: UserAuthenticationEntryPoint,
     private val userAccessDeniedHandler: UserAccessDeniedHandler
 ) {
@@ -54,6 +56,10 @@ class SecurityConfig(
                     // Default: require authentication for all other endpoints
                     .anyRequest().authenticated()
             }
+            .addFilterBefore(
+                rateLimitingFilter,
+                UsernamePasswordAuthenticationFilter::class.java
+            )
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtTokenProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java
