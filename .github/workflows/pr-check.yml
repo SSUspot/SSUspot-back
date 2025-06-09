@@ -1,0 +1,119 @@
+name: PR Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  check-tests:
+    name: Verify Tests Pass
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for test files
+      id: check_tests
+      run: |
+        # Count test files
+        test_count=$(find ./sns/src/test -name "*Test.kt" -o -name "*Tests.kt" | wc -l)
+        echo "test_count=$test_count" >> $GITHUB_OUTPUT
+        
+        # Check if tests were added/modified in this PR
+        changed_tests=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E "(src/test/.*\.(kt|java)|.*Test\.kt|.*Tests\.kt)" | wc -l)
+        echo "changed_tests=$changed_tests" >> $GITHUB_OUTPUT
+        
+        # Check if source files were modified
+        changed_sources=$(git diff --name-only origin/${{ github.base_ref }}..HEAD | grep -E "src/main/.*\.(kt|java)" | grep -v -E "(dto|entity|config)" | wc -l)
+        echo "changed_sources=$changed_sources" >> $GITHUB_OUTPUT
+        
+    - name: Comment on PR
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const testCount = ${{ steps.check_tests.outputs.test_count }};
+          const changedTests = ${{ steps.check_tests.outputs.changed_tests }};
+          const changedSources = ${{ steps.check_tests.outputs.changed_sources }};
+          
+          let comment = '## PR Test Check 🧪\n\n';
+          
+          if (changedSources > 0 && changedTests === 0) {
+            comment += '⚠️ **Warning**: Source files were modified but no tests were added or updated.\n\n';
+            comment += 'Please ensure all changes are covered by tests following TDD principles.\n';
+            core.setFailed('Tests must be added for source code changes');
+          } else if (changedTests > 0) {
+            comment += '✅ **Great!** This PR includes test changes.\n';
+          }
+          
+          comment += `\n### Statistics:\n`;
+          comment += `- Total test files in project: ${testCount}\n`;
+          comment += `- Test files changed in this PR: ${changedTests}\n`;
+          comment += `- Source files changed in this PR: ${changedSources}\n`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+          
+  check-commit-messages:
+    name: Verify Commit Messages
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        
+    - name: Check commit messages
+      run: |
+        # Get all commit messages in this PR
+        commits=$(git log --format="%s" origin/${{ github.base_ref }}..HEAD)
+        
+        # Check if commits follow conventional commits pattern
+        invalid_commits=""
+        while IFS= read -r commit; do
+          if ! echo "$commit" | grep -qE "^(feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert)(\(.+\))?: .+"; then
+            invalid_commits="${invalid_commits}\n- ${commit}"
+          fi
+        done <<< "$commits"
+        
+        if [ -n "$invalid_commits" ]; then
+          echo "❌ Invalid commit messages found:"
+          echo -e "$invalid_commits"
+          echo ""
+          echo "Please use conventional commit format:"
+          echo "  feat: add new feature"
+          echo "  fix: fix bug"
+          echo "  test: add tests"
+          echo "  refactor: refactor code"
+          echo "  docs: update documentation"
+          echo "  chore: update dependencies"
+          exit 1
+        fi
+        
+  check-branch-name:
+    name: Verify Branch Name
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check branch name
+      run: |
+        branch_name="${{ github.head_ref }}"
+        
+        # Check if branch follows naming convention
+        if ! echo "$branch_name" | grep -qE "^(feature|fix|hotfix|release|test|chore)/.+"; then
+          echo "❌ Invalid branch name: $branch_name"
+          echo ""
+          echo "Please use one of the following patterns:"
+          echo "  feature/description"
+          echo "  fix/description"
+          echo "  test/description"
+          echo "  chore/description"
+          exit 1
+        fi
+        
+        echo "✅ Valid branch name: $branch_name"

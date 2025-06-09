@@ -1,0 +1,185 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:13-alpine
+        env:
+          POSTGRES_USER: ssuspot
+          POSTGRES_PASSWORD: testpassword
+          POSTGRES_DB: ssuspot_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    - name: Cache Gradle packages
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+
+    - name: Grant execute permission for gradlew
+      run: chmod +x ./sns/gradlew
+
+    - name: Run tests
+      working-directory: ./sns
+      env:
+        SSUSPOT_SNS_DB_URL: jdbc:postgresql://localhost:5432/ssuspot_test
+        SSUSPOT_SNS_DB_USERNAME: ssuspot
+        SSUSPOT_SNS_DB_PASSWORD: testpassword
+        SSUSPOT_REDIS_HOST: localhost
+        SSUSPOT_REDIS_PORT: 6379
+        SSUSPOT_JWT_SECRET: test-secret-key-for-ci-testing
+        SSUSPOT_S3_BUCKET_NAME: test-bucket
+        SSUSPOT_S3_ACCESS_KEY: test-access-key
+        SSUSPOT_S3_SECRET_KEY: test-secret-key
+        SSUSPOT_S3_REGION: us-east-1
+      run: ./gradlew test jacocoTestReport
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: sns/build/test-results/test
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v3
+      with:
+        name: coverage-report
+        path: sns/build/jacocoHtml
+
+    - name: Add coverage comment
+      if: github.event_name == 'pull_request'
+      uses: jacoco-badge-generator@v2.11.0
+      with:
+        jacoco-csv-file: sns/build/reports/jacoco/test/jacocoTestReport.csv
+        coverage-badge-filename: jacoco.svg
+        coverage-label: Coverage
+        
+    - name: Generate JaCoCo Badge
+      if: github.event_name == 'pull_request'
+      uses: cicirello/jacoco-badge-generator@v2
+      with:
+        jacoco-csv-file: sns/build/reports/jacoco/test/jacocoTestReport.csv
+        badges-directory: sns/build/badges
+        generate-coverage-badge: true
+
+    - name: Comment PR with coverage
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const coverage = fs.readFileSync('sns/build/reports/jacoco/test/jacocoTestReport.csv', 'utf8');
+          const lines = coverage.trim().split('\n');
+          const lastLine = lines[lines.length - 1];
+          const values = lastLine.split(',');
+          const missed = parseInt(values[3]);
+          const covered = parseInt(values[4]);
+          const total = missed + covered;
+          const percentage = ((covered / total) * 100).toFixed(2);
+          
+          const comment = `## Test Coverage Report 📊
+          
+          **Overall Coverage: ${percentage}%**
+          
+          | Type | Missed | Covered | Total | Coverage |
+          |------|--------|---------|-------|----------|
+          | Lines | ${missed} | ${covered} | ${total} | ${percentage}% |
+          
+          _Minimum required coverage is 80%_`;
+          
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: comment
+          });
+
+  code-quality:
+    name: Code Quality Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Run ktlint
+      working-directory: ./sns
+      run: |
+        curl -sSLO https://github.com/pinterest/ktlint/releases/download/1.0.1/ktlint && chmod +x ktlint
+        ./ktlint --reporter=checkstyle,output=build/ktlint-report.xml || true
+        
+    - name: Upload ktlint report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: ktlint-report
+        path: sns/build/ktlint-report.xml
+
+  security-check:
+    name: Security Vulnerability Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: './sns'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      if: always()
+      with:
+        sarif_file: 'trivy-results.sarif'
