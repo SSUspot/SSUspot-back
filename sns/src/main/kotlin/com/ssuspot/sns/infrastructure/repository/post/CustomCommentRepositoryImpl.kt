@@ -1,3 +1,4 @@
+/*
 package com.ssuspot.sns.infrastructure.repository.post
 
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -52,5 +53,29 @@ class CustomCommentRepositoryImpl(
             pageable,
             total
         )
+    }
+}
+*/
+
+package com.ssuspot.sns.infrastructure.repository.post
+
+import com.ssuspot.sns.domain.model.post.entity.Comment
+import com.ssuspot.sns.domain.model.post.repository.CustomCommentRepository
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Repository
+
+@Repository
+class CustomCommentRepositoryImpl : CustomCommentRepository {
+    override fun findCommentById(commentId: Long): Comment? {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findCommentsByPostId(postId: Long, pageable: Pageable): Page<Comment> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findCommentsByUserId(userId: Long, pageable: Pageable): Page<Comment> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
     }
 }

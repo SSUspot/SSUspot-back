@@ -1,3 +1,4 @@
+/*
 package com.ssuspot.sns.infrastructure.repository.post
 
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -36,5 +37,26 @@ class CustomCommentAlarmRepositoryImpl(
             pageable,
             total
         )
+    }
+}
+*/
+
+package com.ssuspot.sns.infrastructure.repository.post
+
+import com.ssuspot.sns.domain.model.alarm.CommentAlarm
+import com.ssuspot.sns.domain.model.post.repository.CustomCommentAlarmRepository
+import com.ssuspot.sns.domain.model.user.entity.User
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Repository
+
+@Repository
+class CustomCommentAlarmRepositoryImpl : CustomCommentAlarmRepository {
+    override fun save(commentAlarm: CommentAlarm): CommentAlarm {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+    
+    override fun findCommentAlarmByUser(user: User, pageable: Pageable): Page<CommentAlarm> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
     }
 }

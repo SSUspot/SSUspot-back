@@ -1,9 +1,9 @@
 package com.ssuspot.sns.domain.model.common
 
-import javax.persistence.Column
-import javax.persistence.MappedSuperclass
-import javax.persistence.PrePersist
-import javax.persistence.PreUpdate
+import jakarta.persistence.Column
+import jakarta.persistence.MappedSuperclass
+import jakarta.persistence.PrePersist
+import jakarta.persistence.PreUpdate
 import com.ssuspot.sns.infrastructure.utils.time.EpochTimeUtil.getCurrentEpochTime
 
 @MappedSuperclass

@@ -1,7 +1,7 @@
 package com.ssuspot.sns.domain.model.spot.entity
 
 import com.ssuspot.sns.domain.model.post.entity.Post
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "spots")

@@ -1,3 +1,4 @@
+/*
 package com.ssuspot.sns.infrastructure.repository.post
 
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -213,5 +214,55 @@ class CustomPostRepositoryImpl(
             .fetchCount()
 
         return PageImpl(postResponses, pageable, total)
+    }
+}
+*/
+
+package com.ssuspot.sns.infrastructure.repository.post
+
+import com.ssuspot.sns.application.dto.post.PostResponseDto
+import com.ssuspot.sns.domain.model.post.entity.Post
+import com.ssuspot.sns.domain.model.post.repository.CustomPostRepository
+import com.ssuspot.sns.domain.model.user.entity.User
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.stereotype.Repository
+
+@Repository
+class CustomPostRepositoryImpl : CustomPostRepository {
+    override fun save(post: Post): Post {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun delete(post: Post) {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findValidPostById(postId: Long): Post {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findPostById(postId: Long, user: User): PostResponseDto? {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findPostsBySpotId(spotId: Long, user: User, pageable: Pageable): Page<PostResponseDto> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findPostsByUserId(user: User, pageable: Pageable): Page<PostResponseDto> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findPostsByFollowingUsers(user: User, pageable: Pageable): Page<PostResponseDto> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
+    }
+
+    override fun findRecommendedPosts(user: User, pageable: Pageable): Page<PostResponseDto> {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
     }
 }

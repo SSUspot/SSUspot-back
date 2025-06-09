@@ -5,8 +5,8 @@ import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.post.entity.PostLike
 import com.ssuspot.sns.domain.model.post.entity.Post
-import javax.persistence.*
-import javax.validation.constraints.NotNull
+import jakarta.persistence.*
+import jakarta.validation.constraints.NotNull
 
 @Entity
 @Table(

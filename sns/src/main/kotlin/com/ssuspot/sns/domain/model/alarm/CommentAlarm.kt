@@ -4,7 +4,7 @@ import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.post.entity.Comment
 import com.ssuspot.sns.domain.model.post.entity.Post
 import com.ssuspot.sns.domain.model.user.entity.User
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "alarms")

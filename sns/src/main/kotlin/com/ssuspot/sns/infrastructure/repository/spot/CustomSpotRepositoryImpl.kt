@@ -1,3 +1,4 @@
+/*
 package com.ssuspot.sns.infrastructure.repository.spot
 
 import com.querydsl.jpa.impl.JPAQueryFactory
@@ -15,5 +16,19 @@ class CustomSpotRepositoryImpl(
             .selectFrom(QSpot.spot)
             .where(QSpot.spot.id.eq(spotId))
             .fetchOne()
+    }
+}
+*/
+
+package com.ssuspot.sns.infrastructure.repository.spot
+
+import com.ssuspot.sns.domain.model.spot.entity.Spot
+import com.ssuspot.sns.domain.model.spot.repository.CustomSpotRepository
+import org.springframework.stereotype.Repository
+
+@Repository
+class CustomSpotRepositoryImpl : CustomSpotRepository {
+    override fun findSpotById(spotId: Long): Spot? {
+        throw UnsupportedOperationException("QueryDSL not configured yet")
     }
 }

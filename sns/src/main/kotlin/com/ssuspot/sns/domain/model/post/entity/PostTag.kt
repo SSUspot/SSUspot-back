@@ -1,7 +1,7 @@
 package com.ssuspot.sns.domain.model.post.entity
 
 import com.ssuspot.sns.application.dto.post.PostTagDto
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "post_tags")

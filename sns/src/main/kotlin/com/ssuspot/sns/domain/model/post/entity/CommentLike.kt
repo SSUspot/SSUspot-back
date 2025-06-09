@@ -1,7 +1,7 @@
 package com.ssuspot.sns.domain.model.post.entity
 
 import com.ssuspot.sns.domain.model.user.entity.User
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "comment_likes")

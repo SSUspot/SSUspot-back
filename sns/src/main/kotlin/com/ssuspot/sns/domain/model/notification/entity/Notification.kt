@@ -1,7 +1,7 @@
 package com.ssuspot.sns.domain.model.notification.entity
 
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "notifications")

@@ -1,6 +1,6 @@
 package com.ssuspot.sns.domain.model.post.entity
 
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "tags")

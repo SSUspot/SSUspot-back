@@ -4,7 +4,7 @@ import com.ssuspot.sns.api.response.post.CommentResponse
 import com.ssuspot.sns.application.dto.post.CommentResponseDto
 import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.user.entity.User
-import javax.persistence.*
+import jakarta.persistence.*
 
 @Entity
 @Table(name = "comments")

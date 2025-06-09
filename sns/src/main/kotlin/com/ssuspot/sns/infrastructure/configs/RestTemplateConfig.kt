@@ -15,7 +15,7 @@ class RestTemplateConfig {
     @Bean
     fun restTemplate(restTemplateBuilder: RestTemplateBuilder): RestTemplate {
         return restTemplateBuilder
-            .requestFactory {
+            .requestFactory { _ ->
                 BufferingClientHttpRequestFactory(
                     SimpleClientHttpRequestFactory()
                 )
