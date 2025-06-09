@@ -7,21 +7,26 @@ import com.ssuspot.sns.domain.model.user.event.RegisteredUserEvent
 import com.ssuspot.sns.domain.exceptions.user.EmailExistException
 import com.ssuspot.sns.domain.exceptions.user.UserNotFoundException
 import com.ssuspot.sns.domain.exceptions.user.UserPasswordIncorrectException
+import com.ssuspot.sns.domain.exceptions.user.InvalidRefreshTokenException
 import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.domain.model.user.entity.UserFollow
+import com.ssuspot.sns.domain.model.user.RefreshToken
 import com.ssuspot.sns.infrastructure.aop.CacheUser
 import com.ssuspot.sns.infrastructure.repository.post.UserFollowRepository
 import com.ssuspot.sns.infrastructure.repository.user.UserRepository
+import com.ssuspot.sns.infrastructure.repository.user.RefreshTokenRepository
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.util.UUID
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val userFollowRepository: UserFollowRepository,
+    private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
     private val applicationEventPublisher: ApplicationEventPublisher
@@ -83,9 +88,21 @@ class UserService(
         val user = userRepository.findByEmail(loginDto.email) ?: throw UserNotFoundException()
         if (!passwordEncoder.matches(loginDto.password, user.password)) throw UserPasswordIncorrectException()
 
-        //refresh,access token 생성
+        // 기존 Refresh 토큰 모두 삭제 (중복 로그인 방지)
+        refreshTokenRepository.deleteAllByEmail(user.email)
+
+        // 새로운 토큰 생성
         val accessToken = generateAccessToken(user.email)
         val refreshToken = generateRefreshToken(user.email)
+        
+        // Refresh 토큰을 Redis에 저장
+        val refreshTokenEntity = RefreshToken(
+            id = UUID.randomUUID().toString(),
+            email = user.email,
+            ttl = 2592000 // 30일 (초 단위)
+        )
+        refreshTokenRepository.save(refreshTokenEntity)
+        
         return AuthTokenDto(accessToken, refreshToken)
     }
 
@@ -179,14 +196,59 @@ class UserService(
 
     @Transactional
     fun refresh(dto: RefreshTokenDto): AuthTokenDto {
+        // 1. Refresh 토큰 검증
+        if (!jwtTokenProvider.validateRefreshToken(dto.refreshToken)) {
+            throw InvalidRefreshTokenException()
+        }
+        
+        // 2. 토큰에서 이메일 추출
         val email = jwtTokenProvider.getUserEmailFromToken(dto.refreshToken)
         val user = getValidUserByEmail(email)
-        val accessToken = generateAccessToken(user.email)
-        val refreshToken = generateRefreshToken(user.email)
-
-        // TODO: refresh token 캐시에 업데이트 하는 코드 작성 필요
-
-        return AuthTokenDto(accessToken, refreshToken)
+        
+        // 3. Redis에서 저장된 Refresh 토큰 확인
+        val storedTokens = refreshTokenRepository.findAllByEmail(email)
+        if (storedTokens.isEmpty()) {
+            throw InvalidRefreshTokenException()
+        }
+        
+        // 4. 재사용 공격 방지 - 사용 횟수 확인
+        val currentToken = storedTokens.firstOrNull { !it.isRevoked && !it.isExpired() }
+            ?: throw InvalidRefreshTokenException()
+            
+        if (currentToken.usageCount >= 3) {
+            // 너무 많이 사용된 토큰 - 보안 위협 가능성
+            refreshTokenRepository.deleteAllByEmail(email)
+            throw InvalidRefreshTokenException()
+        }
+        
+        // 5. 기존 토큰 사용 횟수 증가
+        val updatedToken = currentToken.incrementUsage()
+        refreshTokenRepository.save(updatedToken)
+        
+        // 6. 새로운 Access Token 생성
+        val newAccessToken = generateAccessToken(user.email)
+        
+        // 7. Refresh Token Rotation - 일정 사용 횟수 후 새로운 Refresh Token 발급
+        if (updatedToken.usageCount >= 2) {
+            // 기존 토큰 폐기
+            refreshTokenRepository.delete(updatedToken)
+            
+            // 새로운 Refresh Token 발급
+            val newRefreshToken = generateRefreshToken(user.email)
+            val newRefreshTokenEntity = RefreshToken(
+                id = UUID.randomUUID().toString(),
+                email = user.email,
+                ttl = 2592000 // 30일
+            )
+            refreshTokenRepository.save(newRefreshTokenEntity)
+            
+            return AuthTokenDto(newAccessToken, newRefreshToken)
+        }
+        
+        // 8. 기존 Refresh Token 유지
+        return AuthTokenDto(newAccessToken, dto.refreshToken.let { 
+            JwtTokenDto(it, System.currentTimeMillis() + 2592000000) // 30일
+        })
     }
 
     fun findValidUserByEmail(email: String): User {
@@ -203,6 +265,27 @@ class UserService(
     fun getUserInfo(email: String): User {
         return userRepository.findByEmail(email)
             ?: throw UserNotFoundException()
+    }
+    
+    /**
+     * 로그아웃 - 모든 Refresh 토큰 폐기
+     */
+    @Transactional
+    fun logout(email: String) {
+        // Redis에서 해당 사용자의 모든 Refresh 토큰 삭제
+        refreshTokenRepository.deleteAllByEmail(email)
+    }
+    
+    /**
+     * 특정 디바이스의 Refresh 토큰만 폐기
+     */
+    @Transactional
+    fun revokeRefreshToken(email: String, tokenId: String) {
+        val token = refreshTokenRepository.findById(tokenId).orElse(null)
+        if (token != null && token.email == email) {
+            val revokedToken = token.revoke()
+            refreshTokenRepository.save(revokedToken)
+        }
     }
     private fun createUser(
         registerDto: RegisterDto

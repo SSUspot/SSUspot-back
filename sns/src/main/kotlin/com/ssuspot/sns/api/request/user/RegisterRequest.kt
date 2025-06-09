@@ -1,6 +1,6 @@
 package com.ssuspot.sns.api.request.user
 
-import javax.validation.constraints.Pattern
+import jakarta.validation.constraints.Pattern
 
 data class RegisterRequest (
         val email: String,

@@ -159,6 +159,14 @@ class UserController(
             LoginResponse(token)
         )
     }
+    
+    @PostMapping("/api/users/logout")
+    fun logout(
+        @Auth authInfo: AuthInfo
+    ): ResponseEntity<Unit> {
+        userService.logout(authInfo.email)
+        return ResponseEntity.ok().build()
+    }
 
     @PostMapping("/api/users/following/{userId}")
     fun follow(
