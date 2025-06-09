@@ -7,6 +7,13 @@ import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.*
 import com.ssuspot.sns.application.service.post.PostService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.security.SecurityRequirement
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -18,14 +25,32 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "Post", description = "게시물 관리 API")
 class PostController(
     private val postService: PostService
 ) {
     @GetMapping("/api/posts/recommend")
+    @Operation(
+        summary = "추천 게시물 조회",
+        description = "사용자 맞춤 추천 게시물 목록을 조회합니다. 팔로우하는 사용자들의 인기 게시물을 기반으로 추천됩니다.",
+        security = [SecurityRequirement(name = "Bearer Authentication")]
+    )
+    @ApiResponses(value = [
+        io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "200",
+            description = "추천 게시물 조회 성공"
+        ),
+        io.swagger.v3.oas.annotations.responses.ApiResponse(
+            responseCode = "401",
+            description = "인증되지 않은 사용자"
+        )
+    ])
     fun getRecommendPosts(
+        @Parameter(description = "페이지 번호 (1부터 시작)", example = "1")
         @RequestParam("page", defaultValue = "1") page: Int,
+        @Parameter(description = "페이지 크기", example = "10")
         @RequestParam("size", defaultValue = "10") size: Int,
-        @Auth authInfo: AuthInfo
+        @Parameter(hidden = true) @Auth authInfo: AuthInfo
     ): ResponseEntity<List<PostResponse>> {
         val posts = postService.getRecommendedPosts(GetRecommendedPostsDto(authInfo.email, page, size))
         return ResponseEntity.ok(

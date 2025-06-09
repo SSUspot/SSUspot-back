@@ -65,6 +65,9 @@ dependencies {
 	// Monitoring
 	implementation("io.micrometer:micrometer-registry-prometheus")
 
+	// API Documentation
+	implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0")
+
 	// Others
 	implementation("com.drewnoakes:metadata-extractor:2.16.0")
 

@@ -4,10 +4,12 @@ import com.ssuspot.sns.application.dto.spot.CreateSpotDto
 import com.ssuspot.sns.api.request.spot.CreateSpotRequest
 import com.ssuspot.sns.api.response.spot.SpotResponse
 import com.ssuspot.sns.application.service.spot.SpotService
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Tag(name = "Spot", description = "스팟(장소) 관리 API")
 class SpotController(
     val spotService: SpotService
 ) {

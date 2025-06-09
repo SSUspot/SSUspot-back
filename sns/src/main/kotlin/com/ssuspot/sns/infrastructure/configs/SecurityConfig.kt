@@ -46,6 +46,12 @@ class SecurityConfig(
                     // Health check and actuator endpoints
                     .requestMatchers("/actuator/**").permitAll()
                     
+                    // API Documentation endpoints
+                    .requestMatchers("/swagger-ui/**").permitAll()
+                    .requestMatchers("/swagger-ui.html").permitAll()
+                    .requestMatchers("/api-docs/**").permitAll()
+                    .requestMatchers("/v3/api-docs/**").permitAll()
+                    
                     // Protected endpoints - authentication required
                     .requestMatchers("/api/alarms/**").authenticated()
                     .requestMatchers("/api/images/**").authenticated()

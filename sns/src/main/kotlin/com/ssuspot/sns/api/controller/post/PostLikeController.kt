@@ -5,12 +5,14 @@ import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.LikeDto
 import com.ssuspot.sns.application.service.post.PostLikeService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@Tag(name = "Like", description = "좋아요 관리 API")
 class PostLikeController(
     private val postLikeService: PostLikeService
 ) {

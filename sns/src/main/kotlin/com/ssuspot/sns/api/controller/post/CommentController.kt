@@ -8,10 +8,12 @@ import com.ssuspot.sns.application.dto.post.CreateCommentDto
 import com.ssuspot.sns.application.dto.post.GetCommentDto
 import com.ssuspot.sns.application.service.post.CommentService
 import com.ssuspot.sns.infrastructure.security.AuthInfo
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@Tag(name = "Comment", description = "댓글 관리 API")
 class CommentController(
     private val commentService: CommentService,
 ) {
