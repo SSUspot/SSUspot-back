@@ -5,6 +5,7 @@ import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import com.ssuspot.sns.domain.model.spot.entity.Spot
 import com.ssuspot.sns.domain.model.user.entity.User
 import jakarta.persistence.*
+import org.hibernate.annotations.BatchSize
 
 @Entity
 @Table(name = "posts")
@@ -38,13 +39,16 @@ class Post(
     @field:ElementCollection(fetch = FetchType.EAGER)
     var imageUrls: List<String> = listOf(),
 
-    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
+    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @field:BatchSize(size = 20)
     val comments: MutableList<Comment> = mutableListOf(),
 
-    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
+    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @field:BatchSize(size = 20)
     val postLikes: MutableList<PostLike> = mutableListOf(),
 
-    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL])
+    @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @field:BatchSize(size = 20)
     var postTags: MutableList<PostTag> = mutableListOf(),
 
     @field:ManyToOne(fetch = FetchType.LAZY)

@@ -7,6 +7,7 @@ import com.ssuspot.sns.domain.model.post.entity.PostLike
 import com.ssuspot.sns.domain.model.post.entity.Post
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
+import org.hibernate.annotations.BatchSize
 
 @Entity
 @Table(
@@ -50,19 +51,24 @@ class User(
         @field:Column(name = "profile_image_link")
         var profileImageLink: String?,
 
-        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         val posts: MutableList<Post> = mutableListOf(),
 
-        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         val comments: MutableList<Comment> = mutableListOf(),
 
-        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         val postLikes: MutableList<PostLike> = mutableListOf(),
 
-        @field:OneToMany(mappedBy = "followingUser", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "followingUser", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         val following: MutableList<UserFollow> = mutableListOf(),
 
-        @field:OneToMany(mappedBy = "followedUser", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "followedUser", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         val followers: MutableList<UserFollow> = mutableListOf(),
 
 ): BaseTimeEntity(){

@@ -4,6 +4,14 @@ spring:
     url: ${SSUSPOT_SNS_DB_URL}
     username: ${SSUSPOT_SNS_DB_USERNAME}
     password: ${SSUSPOT_SNS_DB_PASSWORD}
+    # HikariCP 연결 풀 최적화
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 20000
+      idle-timeout: 300000
+      max-lifetime: 1800000
+      leak-detection-threshold: 60000
   jpa:
     hibernate:
       ddl-auto: update
@@ -11,6 +19,17 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        # N+1 문제 해결을 위한 배치 페칭 설정
+        jdbc:
+          batch_size: 20
+          fetch_size: 50
+        order_inserts: true
+        order_updates: true
+        batch_versioned_data: true
+        # 컬렉션 배치 페칭
+        default_batch_fetch_size: 100
+        # 지연 로딩 최적화
+        enable_lazy_load_no_trans: false
     show-sql: true
     open-in-view: false
   kafka:
