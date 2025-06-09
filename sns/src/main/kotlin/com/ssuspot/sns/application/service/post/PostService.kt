@@ -11,6 +11,9 @@ import com.ssuspot.sns.domain.model.post.entity.PostTag
 import com.ssuspot.sns.domain.model.post.repository.CustomPostRepository
 import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.domain.model.spot.entity.Spot
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.Caching
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
@@ -23,7 +26,8 @@ class PostService(
     private val userService: UserService,
     private val tagService: TagService
 ) {
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["recommended-posts"], key = "#getRecommendPostsDto.email + '_' + #getRecommendPostsDto.page + '_' + #getRecommendPostsDto.size")
     fun getRecommendedPosts(getRecommendPostsDto: GetRecommendedPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getRecommendPostsDto.email)
         val posts = customPostRepository.findRecommendedPosts(
@@ -33,6 +37,14 @@ class PostService(
         return posts.content
     }
     @Transactional
+    @Caching(evict = [
+        CacheEvict(value = ["posts"], allEntries = true),
+        CacheEvict(value = ["post-summaries"], allEntries = true),
+        CacheEvict(value = ["user-posts"], allEntries = true),
+        CacheEvict(value = ["spot-posts"], allEntries = true),
+        CacheEvict(value = ["recommended-posts"], allEntries = true),
+        CacheEvict(value = ["following-posts"], allEntries = true)
+    ])
     fun createPost(createPostRequestDto: CreatePostRequestDto): PostResponseDto {
         val post = createPostRequestDto.toEntity(
             spotService.findValidSpot(createPostRequestDto.spotId),
