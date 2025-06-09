@@ -3,11 +3,10 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "3.2.0"
 	id("io.spring.dependency-management") version "1.1.4"
-	// id("com.ewerk.gradle.plugins.querydsl") version "1.0.10" // Removed - using annotation processor instead
 	kotlin("jvm") version "1.9.20"
 	kotlin("plugin.spring") version "1.9.20"
 	kotlin("plugin.jpa") version "1.9.20"
-	// kotlin("kapt") version "1.9.20" // Removed due to Java 21 compatibility issues
+	// QueryDSL 대신 Spring Data JPA @Query 사용
 	id("jacoco")
 }
 
@@ -42,14 +41,7 @@ dependencies {
 	// AWS SDK
 	implementation("com.amazonaws:aws-java-sdk-s3:1.12.261")
 
-	// QueryDSL for Jakarta
-	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
-	annotationProcessor("com.querydsl:querydsl-apt:5.0.0:jakarta")
-	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
-	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-	annotationProcessor("jakarta.annotation:jakarta.annotation-api")
-	annotationProcessor("jakarta.persistence:jakarta.persistence-api")
+	// QueryDSL 제거 - Spring Data JPA의 @Query 사용으로 대체
 
 	// JWT
 	implementation("io.jsonwebtoken:jjwt-api:0.11.5")
@@ -122,13 +114,11 @@ tasks.withType<Test> {
 	useJUnitPlatform()
 }
 
-// QueryDSL configuration
-val querydslDir = "$buildDir/generated/sources/annotationProcessor/java/main"
+// QueryDSL 설정 제거 - Spring Data JPA @Query 사용
 
-sourceSets {
-	main {
-		java.srcDir(querydslDir)
-	}
+// Specify main class for Spring Boot
+springBoot {
+	mainClass.set("com.ssuspot.sns.SnsApplicationKt")
 }
 
 

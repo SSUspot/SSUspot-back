@@ -1,17 +1,13 @@
 package com.ssuspot.sns.infrastructure.configs
 
-import com.querydsl.jpa.impl.JPAQueryFactory
-import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import jakarta.persistence.EntityManager
-import jakarta.persistence.PersistenceContext
 
+/**
+ * JPA 설정 클래스
+ * QueryDSL 대신 Spring Data JPA의 EntityManager와 @Query 사용
+ */
 @Configuration
-class JpaQueryFactoryConfig {
-    @PersistenceContext
-    private val entityManager: EntityManager? = null
-
-    @Bean
-    fun jpaQueryFactory() =
-        JPAQueryFactory(entityManager)
+class JpaConfig {
+    // QueryDSL JPAQueryFactory 제거
+    // EntityManager는 CustomPostRepositoryImpl에서 직접 주입받아 사용
 }
