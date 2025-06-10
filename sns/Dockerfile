@@ -1,12 +1,51 @@
-FROM openjdk:17-jdk
+# Multi-stage build for production
+FROM gradle:8.5-jdk17 AS builder
 
-# JAR_FILE 변수 정의 -> 기본적으로 jar file이 2개이기 때문에 이름을 특정해야함
-ARG JAR_FILE=./build/libs/sns-0.0.1-SNAPSHOT.jar
+# Set working directory
+WORKDIR /app
 
-ADD ${JAR_FILE} docker-auth.jar
+# Copy gradle files
+COPY build.gradle.kts settings.gradle.kts gradle.properties ./
+COPY gradle ./gradle
+COPY gradlew ./
 
-# JAR 파일 메인 디렉토리에 복사
-COPY ${JAR_FILE} app.jar
+# Download dependencies
+RUN ./gradlew dependencies --no-daemon
 
-# 시스템 진입점 정의
-ENTRYPOINT ["java","-jar","/app.jar"]
+# Copy source code
+COPY src ./src
+
+# Build application
+RUN ./gradlew build -x test --no-daemon
+
+# Runtime stage
+FROM eclipse-temurin:17-jre-alpine
+
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
+
+# Create non-root user
+RUN addgroup -g 1000 spring && \
+    adduser -u 1000 -G spring -s /bin/sh -D spring
+
+# Set working directory
+WORKDIR /app
+
+# Copy JAR from builder
+COPY --from=builder /app/build/libs/sns-*.jar app.jar
+
+# Change ownership
+RUN chown -R spring:spring /app
+
+# Switch to non-root user
+USER spring:spring
+
+# Expose port
+EXPOSE 8080
+
+# Set Spring profile
+ENV SPRING_PROFILES_ACTIVE=prod
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["java", "-XX:+UseContainerSupport", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]
