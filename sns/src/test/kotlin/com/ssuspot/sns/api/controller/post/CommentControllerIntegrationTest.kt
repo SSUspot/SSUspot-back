@@ -4,7 +4,7 @@ import com.ssuspot.sns.api.request.post.CreateCommentRequest
 import com.ssuspot.sns.api.request.post.UpdateCommentRequest
 import com.ssuspot.sns.api.response.post.CommentResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("CommentController 통합 테스트")
 @Transactional
-class CommentControllerIntegrationTest : IntegrationTestBase() {
+class CommentControllerIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper
@@ -32,8 +32,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val token = authTestHelper.registerAndLoginUser()
             val postId = 1L // 실제로는 먼저 게시물을 생성해야 함
             val createCommentRequest = CreateCommentRequest(
-                content = "테스트 댓글 내용입니다.",
-                userEmail = "test@example.com"
+                content = "테스트 댓글 내용입니다."
             )
 
             // when & then
@@ -57,8 +56,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             // given
             val postId = 1L
             val createCommentRequest = CreateCommentRequest(
-                content = "무단 댓글",
-                userEmail = "hacker@example.com"
+                content = "무단 댓글"
             )
 
             // when & then
@@ -78,8 +76,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val token = authTestHelper.registerAndLoginUser()
             val nonExistentPostId = 99999L
             val createCommentRequest = CreateCommentRequest(
-                content = "존재하지 않는 게시물의 댓글",
-                userEmail = "test@example.com"
+                content = "존재하지 않는 게시물의 댓글"
             )
 
             // when & then
@@ -100,8 +97,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val token = authTestHelper.registerAndLoginUser()
             val postId = 1L
             val createCommentRequest = CreateCommentRequest(
-                content = "",
-                userEmail = "test@example.com"
+                content = ""
             )
 
             // when & then
@@ -196,9 +192,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val token = authTestHelper.registerAndLoginUser()
             val commentId = 1L // 실제로는 먼저 댓글을 생성해야 함
             val updateCommentRequest = UpdateCommentRequest(
-                commentId = commentId,
-                content = "수정된 댓글 내용",
-                userEmail = "test@example.com"
+                content = "수정된 댓글 내용"
             )
 
             // when & then
@@ -220,9 +214,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val (_, user1Token) = users[0]
             val commentId = 1L // user2가 작성한 댓글
             val updateCommentRequest = UpdateCommentRequest(
-                commentId = commentId,
-                content = "해킹 시도",
-                userEmail = "user1@example.com"
+                content = "해킹 시도"
             )
 
             // when & then
@@ -243,9 +235,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val token = authTestHelper.registerAndLoginUser()
             val commentId = 1L
             val updateCommentRequest = UpdateCommentRequest(
-                commentId = commentId,
-                content = "",
-                userEmail = "test@example.com"
+                content = ""
             )
 
             // when & then
@@ -344,9 +334,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             // given
             val commentId = 1L
             val updateCommentRequest = UpdateCommentRequest(
-                commentId = commentId,
-                content = "해킹 시도",
-                userEmail = "hacker@example.com"
+                content = "해킹 시도"
             )
 
             // when & then
@@ -372,8 +360,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val postId = 1L
             val tooLongContent = "a".repeat(1001) // 1000자 초과
             val createCommentRequest = CreateCommentRequest(
-                content = tooLongContent,
-                userEmail = "test@example.com"
+                content = tooLongContent
             )
 
             // when & then
@@ -395,8 +382,7 @@ class CommentControllerIntegrationTest : IntegrationTestBase() {
             val postId = 1L
             val maliciousContent = "<script>alert('XSS')</script>"
             val createCommentRequest = CreateCommentRequest(
-                content = maliciousContent,
-                userEmail = "test@example.com"
+                content = maliciousContent
             )
 
             // when & then

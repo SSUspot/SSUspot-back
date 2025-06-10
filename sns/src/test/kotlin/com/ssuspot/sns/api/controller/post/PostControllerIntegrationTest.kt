@@ -4,7 +4,7 @@ import com.ssuspot.sns.api.request.post.CreatePostRequest
 import com.ssuspot.sns.api.request.post.UpdatePostRequest
 import com.ssuspot.sns.api.response.post.PostResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("PostController 통합 테스트")
 @Transactional
-class PostControllerIntegrationTest : IntegrationTestBase() {
+class PostControllerIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper
@@ -34,7 +34,6 @@ class PostControllerIntegrationTest : IntegrationTestBase() {
                 title = "테스트 게시물",
                 content = "테스트 게시물 내용입니다.",
                 spotId = 1L, // 실제로는 먼저 Spot을 생성해야 함
-                userEmail = "test@example.com",
                 imageUrls = listOf("https://example.com/image1.jpg", "https://example.com/image2.jpg"),
                 tags = listOf("테스트", "통합테스트")
             )
@@ -64,7 +63,6 @@ class PostControllerIntegrationTest : IntegrationTestBase() {
                 title = "무단 게시물",
                 content = "무단 접근 시도",
                 spotId = 1L,
-                userEmail = "hacker@example.com",
                 imageUrls = emptyList(),
                 tags = emptyList()
             )
@@ -219,11 +217,8 @@ class PostControllerIntegrationTest : IntegrationTestBase() {
             val postId = 1L // 실제로는 먼저 게시물을 생성해야 함
             
             val updateRequest = UpdatePostRequest(
-                postId = postId,
                 title = "수정된 제목",
                 content = "수정된 내용",
-                userEmail = "test@example.com",
-                imageUrls = listOf("https://example.com/updated.jpg"),
                 tags = listOf("수정", "업데이트")
             )
 
@@ -248,11 +243,8 @@ class PostControllerIntegrationTest : IntegrationTestBase() {
             
             val postId = 1L // user2가 작성한 게시물이라고 가정
             val updateRequest = UpdatePostRequest(
-                postId = postId,
                 title = "해킹 시도",
                 content = "권한 없는 수정",
-                userEmail = "user1@example.com",
-                imageUrls = emptyList(),
                 tags = emptyList()
             )
 

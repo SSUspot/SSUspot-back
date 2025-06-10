@@ -7,7 +7,7 @@ import com.ssuspot.sns.api.request.user.UpdateUserDataRequest
 import com.ssuspot.sns.api.response.user.LoginResponse
 import com.ssuspot.sns.api.response.user.UserResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("UserController 통합 테스트")
 @Transactional
-class UserControllerIntegrationTest : IntegrationTestBase() {
+class UserControllerIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper
@@ -69,7 +69,9 @@ class UserControllerIntegrationTest : IntegrationTestBase() {
                 email = email,
                 password = "password456",
                 userName = "user2",
-                nickname = "사용자2"
+                nickname = "사용자2",
+                profileMessage = null,
+                profileImageLink = null
             )
 
             // when & then
@@ -265,7 +267,7 @@ class UserControllerIntegrationTest : IntegrationTestBase() {
                 .header("Authorization", "Bearer invalid.token")
             .`when`()
                 .get("/api/users/me")
-            .then()()
+            .then()
                 .statusCode(401)
         }
     }
@@ -336,6 +338,7 @@ class UserControllerIntegrationTest : IntegrationTestBase() {
             // given
             val token = authTestHelper.registerAndLoginUser()
             val updateRequest = UpdateUserDataRequest(
+                userName = "updateuser",
                 nickname = "수정된닉네임",
                 profileMessage = "수정된 프로필 메시지",
                 profileImageLink = "https://example.com/new-profile.jpg"
@@ -357,8 +360,10 @@ class UserControllerIntegrationTest : IntegrationTestBase() {
         fun updateUser_noAuth_fails() {
             // given
             val updateRequest = UpdateUserDataRequest(
+                userName = "hacker",
                 nickname = "해킹시도",
-                profileMessage = "해킹 메시지"
+                profileMessage = "해킹 메시지",
+                profileImageLink = null
             )
 
             // when & then

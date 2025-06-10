@@ -2,7 +2,7 @@ package com.ssuspot.sns.api.controller.post
 
 import com.ssuspot.sns.api.response.post.LikeResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("PostLikeController 통합 테스트")
 @Transactional
-class PostLikeControllerIntegrationTest : IntegrationTestBase() {
+class PostLikeControllerIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper

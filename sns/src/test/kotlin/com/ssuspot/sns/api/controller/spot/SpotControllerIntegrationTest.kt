@@ -3,7 +3,7 @@ package com.ssuspot.sns.api.controller.spot
 import com.ssuspot.sns.api.request.spot.CreateSpotRequest
 import com.ssuspot.sns.api.response.spot.SpotResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("SpotController 통합 테스트")
 @Transactional
-class SpotControllerIntegrationTest : IntegrationTestBase() {
+class SpotControllerIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper

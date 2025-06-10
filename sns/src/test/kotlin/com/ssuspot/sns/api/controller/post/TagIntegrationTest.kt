@@ -3,7 +3,7 @@ package com.ssuspot.sns.api.controller.post
 import com.ssuspot.sns.api.request.post.CreatePostRequest
 import com.ssuspot.sns.api.response.post.PostResponse
 import com.ssuspot.sns.support.integration.AuthTestHelper
-import com.ssuspot.sns.support.integration.IntegrationTestBase
+import com.ssuspot.sns.support.integration.SimpleIntegrationTestBase
 import io.restassured.RestAssured.given
 import io.restassured.http.ContentType
 import org.assertj.core.api.Assertions.assertThat
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @DisplayName("Tag 기능 통합 테스트")
 @Transactional
-class TagIntegrationTest : IntegrationTestBase() {
+class TagIntegrationTest : SimpleIntegrationTestBase() {
 
     @Autowired
     private lateinit var authTestHelper: AuthTestHelper
@@ -319,7 +319,6 @@ class TagIntegrationTest : IntegrationTestBase() {
                 title = "서울 맛집 여행기",
                 content = "서울의 맛있는 맛집들을 소개합니다!",
                 spotId = 1L,
-                userEmail = "tagpost@example.com",
                 imageUrls = listOf("https://example.com/food1.jpg"),
                 tags = tags
             )
@@ -373,7 +372,6 @@ class TagIntegrationTest : IntegrationTestBase() {
                 title = "첫 번째 게시물",
                 content = "공통 태그가 포함된 첫 번째 게시물",
                 spotId = 1L,
-                userEmail = "user1@example.com",
                 imageUrls = emptyList(),
                 tags = listOf(commonTag, "태그1")
             )
@@ -392,7 +390,6 @@ class TagIntegrationTest : IntegrationTestBase() {
                 title = "두 번째 게시물",
                 content = "공통 태그가 포함된 두 번째 게시물",
                 spotId = 1L,
-                userEmail = "user2@example.com",
                 imageUrls = emptyList(),
                 tags = listOf(commonTag, "태그2")
             )

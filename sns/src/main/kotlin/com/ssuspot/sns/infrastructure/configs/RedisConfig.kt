@@ -32,12 +32,6 @@ class RedisConfig {
         return LettuceConnectionFactory(redisConfiguration)
     }
 
-    @Bean
-    fun redisTemplate(): RedisTemplate<String, String> {
-        val redisTemplate = RedisTemplate<String, String>()
-        redisTemplate.keySerializer = StringRedisSerializer()
-        redisTemplate.valueSerializer = StringRedisSerializer()
-        redisTemplate.setConnectionFactory(redisConnectionFactory())
-        return redisTemplate
-    }
+    // redisTemplate은 CacheConfig에서 정의하므로 여기서는 제거
+    // 필요한 경우 다른 이름의 특수 목적 템플릿 정의 가능
 }
