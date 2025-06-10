@@ -28,6 +28,7 @@ class RefreshTokenServiceTest {
     private lateinit var jwtTokenProvider: JwtTokenProvider
     private lateinit var passwordEncoder: PasswordEncoder
     private lateinit var eventPublisher: ApplicationEventPublisher
+    private lateinit var businessMetricsCollector: com.ssuspot.sns.infrastructure.monitoring.BusinessMetricsCollector
     
     private val testEmail = "test@example.com"
     private val testPassword = "password123"
@@ -48,6 +49,11 @@ class RefreshTokenServiceTest {
         jwtTokenProvider = mockk()
         passwordEncoder = mockk()
         eventPublisher = mockk()
+        businessMetricsCollector = mockk()
+        
+        // Set up default mocks for business metrics collector
+        every { businessMetricsCollector.recordUserRegistration(any(), any()) } just Runs
+        every { businessMetricsCollector.recordUserLogin(any(), any()) } just Runs
         
         userService = UserService(
             userRepository = userRepository,
@@ -55,7 +61,8 @@ class RefreshTokenServiceTest {
             refreshTokenRepository = refreshTokenRepository,
             passwordEncoder = passwordEncoder,
             jwtTokenProvider = jwtTokenProvider,
-            applicationEventPublisher = eventPublisher
+            applicationEventPublisher = eventPublisher,
+            businessMetricsCollector = businessMetricsCollector
         )
     }
     

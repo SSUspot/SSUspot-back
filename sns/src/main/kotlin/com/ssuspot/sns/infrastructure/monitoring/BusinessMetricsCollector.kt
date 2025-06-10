@@ -27,19 +27,19 @@ class BusinessMetricsCollector(
     private val userSessions = ConcurrentHashMap<String, LocalDateTime>()
 
     // 메트릭 카운터들
-    private val userRegistrationCounter: Counter
-    private val userLoginCounter: Counter
-    private val postCreationCounter: Counter
-    private val postLikeCounter: Counter
-    private val commentCreationCounter: Counter
-    private val followActionCounter: Counter
-    private val spotCreationCounter: Counter
-    private val imageUploadCounter: Counter
+    private lateinit var userRegistrationCounter: Counter
+    private lateinit var userLoginCounter: Counter
+    private lateinit var postCreationCounter: Counter
+    private lateinit var postLikeCounter: Counter
+    private lateinit var commentCreationCounter: Counter
+    private lateinit var followActionCounter: Counter
+    private lateinit var spotCreationCounter: Counter
+    private lateinit var imageUploadCounter: Counter
 
     // 타이머들
-    private val postCreationTimer: Timer
-    private val userLoginTimer: Timer
-    private val imageUploadTimer: Timer
+    private lateinit var postCreationTimer: Timer
+    private lateinit var userLoginTimer: Timer
+    private lateinit var imageUploadTimer: Timer
 
     init {
         // 카운터 초기화
@@ -89,13 +89,13 @@ class BusinessMetricsCollector(
             .register(meterRegistry)
 
         // 게이지 초기화
-        Gauge.builder("business.users.active")
+        Gauge.builder("business.users.active", activeUsers) { it.get().toDouble() }
             .description("현재 활성 사용자 수")
-            .register(meterRegistry) { activeUsers.get().toDouble() }
+            .register(meterRegistry)
 
-        Gauge.builder("business.users.sessions")
+        Gauge.builder("business.users.sessions", userSessions) { it.size.toDouble() }
             .description("현재 활성 세션 수")
-            .register(meterRegistry) { userSessions.size.toDouble() }
+            .register(meterRegistry)
     }
 
     /**

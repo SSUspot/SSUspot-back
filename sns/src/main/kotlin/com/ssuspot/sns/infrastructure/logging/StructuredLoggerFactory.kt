@@ -139,17 +139,18 @@ class StructuredLoggerFactory {
         userId: String? = null,
         details: Map<String, Any> = emptyMap()
     ) {
-        val logData = mapOf(
+        val logData = mutableMapOf<String, Any>(
             "timestamp" to Instant.now().toString(),
             "eventType" to "BUSINESS",
             "action" to action.name,
-            "entityType" to entityType,
-            "entityId" to entityId,
-            "userId" to userId ?: MDC.get(USER_ID),
-            "details" to details,
-            "traceId" to MDC.get(TRACE_ID),
-            "requestId" to MDC.get(REQUEST_ID)
-        ).filterValues { it != null }
+            "entityType" to entityType
+        )
+        
+        entityId?.let { logData["entityId"] = it }
+        (userId ?: MDC.get(USER_ID))?.let { logData["userId"] = it }
+        if (details.isNotEmpty()) logData["details"] = details
+        MDC.get(TRACE_ID)?.let { logData["traceId"] = it }
+        MDC.get(REQUEST_ID)?.let { logData["requestId"] = it }
 
         val message = objectMapper.writeValueAsString(logData)
         businessLogger.info(message)
@@ -169,21 +170,22 @@ class StructuredLoggerFactory {
         requestSize: Long? = null,
         responseSize: Long? = null
     ) {
-        val logData = mapOf(
+        val logData = mutableMapOf<String, Any>(
             "timestamp" to Instant.now().toString(),
             "eventType" to "API_CALL",
             "endpoint" to endpoint,
             "method" to method,
             "statusCode" to statusCode,
-            "duration" to duration,
-            "userId" to userId ?: MDC.get(USER_ID),
-            "clientIp" to clientIp ?: MDC.get(CLIENT_IP),
-            "userAgent" to userAgent ?: MDC.get(USER_AGENT),
-            "requestSize" to requestSize,
-            "responseSize" to responseSize,
-            "traceId" to MDC.get(TRACE_ID),
-            "requestId" to MDC.get(REQUEST_ID)
-        ).filterValues { it != null }
+            "duration" to duration
+        )
+        
+        (userId ?: MDC.get(USER_ID))?.let { logData["userId"] = it }
+        (clientIp ?: MDC.get(CLIENT_IP))?.let { logData["clientIp"] = it }
+        (userAgent ?: MDC.get(USER_AGENT))?.let { logData["userAgent"] = it }
+        requestSize?.let { logData["requestSize"] = it }
+        responseSize?.let { logData["responseSize"] = it }
+        MDC.get(TRACE_ID)?.let { logData["traceId"] = it }
+        MDC.get(REQUEST_ID)?.let { logData["requestId"] = it }
 
         val message = objectMapper.writeValueAsString(logData)
         

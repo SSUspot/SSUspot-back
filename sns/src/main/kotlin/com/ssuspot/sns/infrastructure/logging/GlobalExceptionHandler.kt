@@ -161,8 +161,7 @@ class GlobalExceptionHandler(
         val errorResponse = ErrorResponse(
             httpStatus = HttpStatus.BAD_REQUEST,
             errCode = "VALIDATION_FAILED",
-            message = "입력 데이터 검증에 실패했습니다.",
-            details = fieldErrors
+            message = "입력 데이터 검증에 실패했습니다: ${fieldErrors.entries.joinToString(", ") { "${it.key}: ${it.value}" }}"
         )
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
@@ -182,8 +181,7 @@ class GlobalExceptionHandler(
         val errorResponse = ErrorResponse(
             httpStatus = HttpStatus.BAD_REQUEST,
             errCode = "CONSTRAINT_VIOLATION",
-            message = "제약 조건 위반입니다.",
-            details = violations
+            message = "제약 조건 위반입니다: ${violations.entries.joinToString(", ") { "${it.key}: ${it.value}" }}"
         )
         
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse)
