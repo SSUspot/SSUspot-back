@@ -4,14 +4,28 @@ spring:
     url: ${SSUSPOT_SNS_DB_URL}
     username: ${SSUSPOT_SNS_DB_USERNAME}
     password: ${SSUSPOT_SNS_DB_PASSWORD}
-    # HikariCP 연결 풀 최적화
+    # HikariCP 연결 풀 최적화 - Phase 3 Performance Tuning
     hikari:
-      maximum-pool-size: 20
-      minimum-idle: 5
-      connection-timeout: 20000
-      idle-timeout: 300000
+      # 최대 연결 수: CPU 코어 수 x 2 + 여유 (8코어 기준 18개)
+      maximum-pool-size: 25
+      # 최소 유지 연결 수: 기본 로드를 감안하여 설정
+      minimum-idle: 8
+      # 연결 타임아웃: 30초 (느린 DB 서버 대비)
+      connection-timeout: 30000
+      # 유휴 연결 타임아웃: 10분 (리소스 절약)
+      idle-timeout: 600000
+      # 연결 최대 수명: 30분 (메모리 누수 방지)
       max-lifetime: 1800000
+      # 연결 누수 감지: 60초 (개발/디버깅용)
       leak-detection-threshold: 60000
+      # 연결 풀 이름 설정
+      pool-name: "SSUSPotHikariCP"
+      # 연결 테스트 쿼리 (PostgreSQL 전용)
+      connection-test-query: "SELECT 1"
+      # 연결 검증 시간 제한: 5초
+      validation-timeout: 5000
+      # 연결 초기화 시 SQL 실행 시간
+      initialization-fail-timeout: 1
   jpa:
     hibernate:
       ddl-auto: update
@@ -30,6 +44,10 @@ spring:
         default_batch_fetch_size: 100
         # 지연 로딩 최적화
         enable_lazy_load_no_trans: false
+        # 성능 메트릭 수집을 위한 통계 수집
+        generate_statistics: true
+        # SQL 로깅 설정
+        use_sql_comments: true
     show-sql: true
     open-in-view: false
   kafka:
@@ -74,12 +92,69 @@ logging:
   level:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
+    # 성능 모니터링 로깅 설정
+    io.micrometer: info
+    org.springframework.cache: debug
+  pattern:
+    # 로그 패턴에 요청 ID 추가 (성능 추적용)
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level [%X{traceId:-},%X{spanId:-}] %logger{36} - %msg%n"
 
 management:
   endpoints:
     web:
       exposure:
-        include: "*"
+        # 성능 모니터링을 위한 엔드포인트 노출
+        include: "health,info,metrics,prometheus,caches,hikaricp,redis"
+      base-path: /actuator
+    enabled-by-default: true
+  endpoint:
+    health:
+      show-details: always
+      show-components: always
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+    caches:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+        step: 60s
+    enable:
+      # JVM 메트릭
+      jvm: true
+      # 시스템 메트릭
+      system: true
+      # HTTP 요청 메트릭
+      http: true
+      # 데이터베이스 연결 풀 메트릭
+      hikaricp: true
+      # 캐시 메트릭
+      cache: true
+      # Tomcat 메트릭
+      tomcat: true
+    web:
+      server:
+        # HTTP 요청 시간 측정
+        request:
+          autotime:
+            enabled: true
+            percentiles: 0.5,0.75,0.95,0.99
+            percentiles-histogram: true
+    distribution:
+      percentiles-histogram:
+        # 응답 시간 분포 측정
+        http:
+          server:
+            requests: true
+        # 데이터베이스 쿼리 시간 분포
+        spring:
+          data:
+            repository:
+              invocations: true
 
 # SpringDoc OpenAPI 설정
 springdoc:

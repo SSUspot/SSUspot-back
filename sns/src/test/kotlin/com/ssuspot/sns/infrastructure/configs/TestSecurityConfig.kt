@@ -3,12 +3,12 @@ package com.ssuspot.sns.infrastructure.configs
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.ssuspot.sns.infrastructure.security.JwtAuthenticationFilter
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
-import com.ssuspot.sns.infrastructure.security.RateLimitingFilter
-import com.ssuspot.sns.infrastructure.security.SecurityHeadersFilter
 import com.ssuspot.sns.infrastructure.security.UserAccessDeniedHandler
 import com.ssuspot.sns.infrastructure.security.UserAuthenticationEntryPoint
+import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Primary
+import org.springframework.context.annotation.Profile
 import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
@@ -16,18 +16,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
-@Configuration
-class SecurityConfig(
+@TestConfiguration
+@Profile("test")
+class TestSecurityConfig(
     private val objectMapper: ObjectMapper,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val rateLimitingFilter: RateLimitingFilter,
-    private val securityHeadersFilter: SecurityHeadersFilter,
     private val userAuthenticationEntryPoint: UserAuthenticationEntryPoint,
     private val userAccessDeniedHandler: UserAccessDeniedHandler
 ) {
+    
     @Bean
+    @Primary
     @Throws(Exception::class)
-    fun filterChain(http: HttpSecurity): SecurityFilterChain {
+    fun testSecurityFilterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .httpBasic { it.disable() }
             .csrf { it.disable() }
@@ -64,14 +65,7 @@ class SecurityConfig(
                     // Default: require authentication for all other endpoints
                     .anyRequest().authenticated()
             }
-            .addFilterBefore(
-                securityHeadersFilter,
-                UsernamePasswordAuthenticationFilter::class.java
-            )
-            .addFilterBefore(
-                rateLimitingFilter,
-                UsernamePasswordAuthenticationFilter::class.java
-            )
+            // NOTE: RateLimitingFilter is intentionally excluded for test environment
             .addFilterBefore(
                 JwtAuthenticationFilter(jwtTokenProvider, objectMapper),
                 UsernamePasswordAuthenticationFilter::class.java
@@ -85,9 +79,7 @@ class SecurityConfig(
     }
 
     @Bean
-    fun passwordEncoder(): BCryptPasswordEncoder {
-        // BCrypt strength 기본값(10)보다 높이는 12로 설정
-        // 보안성을 높이더라도 사용자 경험을 해치지 않는 선에서 설정
-        return BCryptPasswordEncoder(12)
+    fun testPasswordEncoder(): BCryptPasswordEncoder {
+        return BCryptPasswordEncoder()
     }
 }

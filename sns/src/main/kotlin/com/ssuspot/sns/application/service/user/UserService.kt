@@ -16,10 +16,14 @@ import com.ssuspot.sns.infrastructure.repository.post.UserFollowRepository
 import com.ssuspot.sns.infrastructure.repository.user.UserRepository
 import com.ssuspot.sns.infrastructure.repository.user.RefreshTokenRepository
 import com.ssuspot.sns.infrastructure.security.JwtTokenProvider
+import org.springframework.cache.annotation.Cacheable
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.CachePut
 import org.springframework.context.ApplicationEventPublisher
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import com.ssuspot.sns.infrastructure.monitoring.BusinessMetricsCollector
 import java.util.UUID
 
 @Service
@@ -29,9 +33,11 @@ class UserService(
     private val refreshTokenRepository: RefreshTokenRepository,
     private val passwordEncoder: PasswordEncoder,
     private val jwtTokenProvider: JwtTokenProvider,
-    private val applicationEventPublisher: ApplicationEventPublisher
+    private val applicationEventPublisher: ApplicationEventPublisher,
+    private val businessMetricsCollector: BusinessMetricsCollector
 ) {
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["userInfo"], key = "#userId + '_' + #email")
     fun getSpecificUser(
         userId: Long,
         email: String
@@ -58,6 +64,13 @@ class UserService(
         if(user != null) throw EmailExistException()
 
         val savedUser = createUser(registerDto)
+        
+        // 비즈니스 메트릭 수집
+        businessMetricsCollector.recordUserRegistration(
+            userId = savedUser.id.toString(),
+            email = savedUser.email
+        )
+        
         val registeredUserEvent = RegisteredUserEvent(savedUser.id, savedUser.email)
         try {
             applicationEventPublisher.publishEvent(registeredUserEvent)
@@ -70,6 +83,7 @@ class UserService(
 
     // 사용자 프로필 수정 api
     @Transactional
+    @CacheEvict(value = ["userInfo", "users"], allEntries = true)
     fun updateProfile(
         updateUserDataDto: UpdateUserDataDto
     ): UserResponseDto {
@@ -85,6 +99,8 @@ class UserService(
     fun login(
         loginDto: LoginDto
     ): AuthTokenDto {
+        val startTime = System.currentTimeMillis()
+        
         val user = userRepository.findByEmail(loginDto.email) ?: throw UserNotFoundException()
         if (!passwordEncoder.matches(loginDto.password, user.password)) throw UserPasswordIncorrectException()
 
@@ -94,6 +110,13 @@ class UserService(
         // 새로운 토큰 생성
         val accessToken = generateAccessToken(user.email)
         val refreshToken = generateRefreshToken(user.email)
+        
+        // 비즈니스 메트릭 수집
+        val duration = System.currentTimeMillis() - startTime
+        businessMetricsCollector.recordUserLogin(
+            userId = user.id.toString(),
+            duration = duration
+        )
         
         // Refresh 토큰을 Redis에 저장
         val refreshTokenEntity = RefreshToken(
@@ -107,6 +130,7 @@ class UserService(
     }
 
     @Transactional
+    @CacheEvict(value = ["follows", "userInfo"], allEntries = true)
     fun follow(
         followingRequestDto: FollowingRequestDto
     ): FollowUserResponseDto{
@@ -119,6 +143,14 @@ class UserService(
                 followedUser = followedUser
             )
         )
+        
+        // 비즈니스 메트릭 수집
+        businessMetricsCollector.recordFollowAction(
+            followingUserId = user.id.toString(),
+            followedUserId = followedUser.id.toString(),
+            isFollow = true
+        )
+        
         return FollowUserResponseDto(
             id = userFollow.id!!,
             userId = userFollow.followedUser.id!!,
@@ -129,6 +161,7 @@ class UserService(
     }
 
     @Transactional
+    @CacheEvict(value = ["follows", "userInfo"], allEntries = true)
     fun unfollow(
         followingRequestDto: FollowingRequestDto
     ){
@@ -136,9 +169,17 @@ class UserService(
         val followedUser = getValidUser(followingRequestDto.userId)
         val userFollow = userFollowRepository.findByFollowingUserAndFollowedUser(user, followedUser) ?: throw UserNotFoundException()
         userFollowRepository.delete(userFollow)
+        
+        // 비즈니스 메트릭 수집
+        businessMetricsCollector.recordFollowAction(
+            followingUserId = user.id.toString(),
+            followedUserId = followedUser.id.toString(),
+            isFollow = false
+        )
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["follows"], key = "'following_' + #email")
     fun getMyFollowingList(email: String): List<FollowUserResponseDto>{
         val user = getValidUserByEmail(email)
         return user.following.map {
@@ -152,7 +193,8 @@ class UserService(
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["follows"], key = "'following_user_' + #userId")
     fun getFollowingListOfUser(userId:Long): List<FollowUserResponseDto>{
         val user = getValidUser(userId)
         return user.following.map {
@@ -166,7 +208,8 @@ class UserService(
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["follows"], key = "'followers_' + #email")
     fun getMyFollowerList(email: String): List<FollowUserResponseDto>{
         val user = getValidUserByEmail(email)
         return user.followers.map {
@@ -180,7 +223,8 @@ class UserService(
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["follows"], key = "'followers_user_' + #userId")
     fun getFollowerListOfUser(userId:Long): List<FollowUserResponseDto>{
         val user = getValidUser(userId)
         return user.followers.map {

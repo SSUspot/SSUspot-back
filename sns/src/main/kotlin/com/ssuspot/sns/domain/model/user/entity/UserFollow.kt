@@ -5,7 +5,14 @@ import com.ssuspot.sns.domain.model.common.BaseTimeEntity
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "user_follows")
+@Table(
+    name = "user_follows",
+    indexes = [
+        Index(name = "idx_user_follow_following_user_id", columnList = "following_user_id"),
+        Index(name = "idx_user_follow_followed_user_id", columnList = "followed_user_id"),
+        Index(name = "idx_user_follow_following_followed", columnList = "following_user_id, followed_user_id")
+    ]
+)
 class UserFollow(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)

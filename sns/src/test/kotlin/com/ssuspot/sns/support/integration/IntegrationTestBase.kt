@@ -1,5 +1,7 @@
 package com.ssuspot.sns.support.integration
 
+import com.ssuspot.sns.infrastructure.configs.TestCacheConfig
+import com.ssuspot.sns.infrastructure.configs.TestSecurityConfig
 import io.restassured.RestAssured
 import io.restassured.config.ObjectMapperConfig
 import io.restassured.config.RestAssuredConfig
@@ -7,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
@@ -23,6 +26,7 @@ import org.testcontainers.junit.jupiter.Testcontainers
 @ActiveProfiles("test")
 @Testcontainers
 @AutoConfigureMockMvc
+@Import(TestCacheConfig::class, TestSecurityConfig::class)
 abstract class IntegrationTestBase {
 
     @LocalServerPort

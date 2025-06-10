@@ -34,11 +34,13 @@ class CustomPostRepositoryImpl(
 
     @Transactional(readOnly = true)
     override fun findPostById(postId: Long, user: User): PostResponseDto? {
+        // 먼저 Post와 연관 엔티티들을 JOIN FETCH로 효율적으로 로드
         val query = """
-            SELECT p FROM Post p 
+            SELECT DISTINCT p FROM Post p 
             LEFT JOIN FETCH p.user 
             LEFT JOIN FETCH p.spot 
-            LEFT JOIN FETCH p.postLikes pl 
+            LEFT JOIN FETCH p.postTags pt 
+            LEFT JOIN FETCH pt.tag
             WHERE p.id = :postId
         """.trimIndent()
         
@@ -48,15 +50,22 @@ class CustomPostRepositoryImpl(
             
         val post = posts.firstOrNull() ?: return null
         
-        val hasLiked = post.postLikes.any { it.user.id == user.id }
+        // 별도 쿼리로 좋아요 여부 확인 (메모리 효율성)
+        val hasLikedQuery = """
+            SELECT COUNT(pl) > 0 FROM PostLike pl 
+            WHERE pl.post.id = :postId AND pl.user.id = :userId
+        """.trimIndent()
+        
+        val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+            .setParameter("postId", postId)
+            .setParameter("userId", user.id)
+            .singleResult
+            
         return post.toDto().apply { this.hasLiked = hasLiked }
     }
 
     @Transactional(readOnly = true)
     override fun findPostsBySpotId(spotId: Long, user: User, pageable: Pageable): Page<PostResponseDto> {
-        // COUNT 쿼리 최적화 - 필요할 때만 실행
-        val needCount = pageable.offset == 0L || pageable.pageNumber == 0
-        
         // 먼저 ID만 조회하여 페이징 처리
         val idQuery = """
             SELECT p.id FROM Post p 
@@ -79,7 +88,8 @@ class CustomPostRepositoryImpl(
             SELECT DISTINCT p FROM Post p 
             LEFT JOIN FETCH p.user 
             LEFT JOIN FETCH p.spot 
-            LEFT JOIN FETCH p.postLikes 
+            LEFT JOIN FETCH p.postTags pt 
+            LEFT JOIN FETCH pt.tag
             WHERE p.id IN :postIds 
             ORDER BY p.createdAt DESC
         """.trimIndent()
@@ -89,20 +99,25 @@ class CustomPostRepositoryImpl(
             .resultList
             
         val postResponses = posts.map { post ->
-            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            // 별도 쿼리로 좋아요 여부 확인
+            val hasLikedQuery = """
+                SELECT COUNT(pl) > 0 FROM PostLike pl 
+                WHERE pl.post.id = :postId AND pl.user.id = :userId
+            """.trimIndent()
+            
+            val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+                .setParameter("postId", post.id)
+                .setParameter("userId", user.id)
+                .singleResult
+                
             post.toDto().apply { this.hasLiked = hasLiked }
         }
         
-        // COUNT는 필요할 때만 실행
-        val total = if (needCount) {
-            val countQuery = "SELECT COUNT(p) FROM Post p WHERE p.spot.id = :spotId"
-            entityManager.createQuery(countQuery, Long::class.java)
-                .setParameter("spotId", spotId)
-                .singleResult
-        } else {
-            // 추정값 사용 (정확하지 않지만 성능상 이점)
-            (pageable.offset + postResponses.size).toLong()
-        }
+        // COUNT 쿼리
+        val countQuery = "SELECT COUNT(p) FROM Post p WHERE p.spot.id = :spotId"
+        val total = entityManager.createQuery(countQuery, Long::class.java)
+            .setParameter("spotId", spotId)
+            .singleResult
         
         return PageImpl(postResponses, pageable, total)
     }
@@ -118,10 +133,11 @@ class CustomPostRepositoryImpl(
             .singleResult
             
         val query = """
-            SELECT p FROM Post p 
+            SELECT DISTINCT p FROM Post p 
             LEFT JOIN FETCH p.user 
             LEFT JOIN FETCH p.spot 
-            LEFT JOIN FETCH p.postLikes 
+            LEFT JOIN FETCH p.postTags pt 
+            LEFT JOIN FETCH pt.tag
             WHERE p.user.id = :userId 
             ORDER BY p.createdAt DESC
         """.trimIndent()
@@ -133,7 +149,17 @@ class CustomPostRepositoryImpl(
             .resultList
             
         val postResponses = posts.map { post ->
-            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            // 별도 쿼리로 좋아요 여부 확인
+            val hasLikedQuery = """
+                SELECT COUNT(pl) > 0 FROM PostLike pl 
+                WHERE pl.post.id = :postId AND pl.user.id = :userId
+            """.trimIndent()
+            
+            val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+                .setParameter("postId", post.id)
+                .setParameter("userId", user.id)
+                .singleResult
+                
             post.toDto().apply { this.hasLiked = hasLiked }
         }
         
@@ -143,7 +169,7 @@ class CustomPostRepositoryImpl(
     @Transactional(readOnly = true)
     override fun findPostsByTagName(tagName: String, user: User, pageable: Pageable): Page<PostResponseDto> {
         val countQuery = """
-            SELECT COUNT(p) FROM Post p 
+            SELECT COUNT(DISTINCT p) FROM Post p 
             INNER JOIN p.postTags pt 
             INNER JOIN pt.tag t 
             WHERE t.tagName = :tagName
@@ -157,9 +183,10 @@ class CustomPostRepositoryImpl(
             SELECT DISTINCT p FROM Post p 
             LEFT JOIN FETCH p.user 
             LEFT JOIN FETCH p.spot 
-            LEFT JOIN FETCH p.postLikes 
-            INNER JOIN p.postTags pt 
-            INNER JOIN pt.tag t 
+            LEFT JOIN FETCH p.postTags pt 
+            LEFT JOIN FETCH pt.tag
+            INNER JOIN p.postTags pt2 
+            INNER JOIN pt2.tag t 
             WHERE t.tagName = :tagName 
             ORDER BY p.createdAt DESC
         """.trimIndent()
@@ -171,7 +198,17 @@ class CustomPostRepositoryImpl(
             .resultList
             
         val postResponses = posts.map { post ->
-            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            // 별도 쿼리로 좋아요 여부 확인
+            val hasLikedQuery = """
+                SELECT COUNT(pl) > 0 FROM PostLike pl 
+                WHERE pl.post.id = :postId AND pl.user.id = :userId
+            """.trimIndent()
+            
+            val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+                .setParameter("postId", post.id)
+                .setParameter("userId", user.id)
+                .singleResult
+                
             post.toDto().apply { this.hasLiked = hasLiked }
         }
         
@@ -181,7 +218,7 @@ class CustomPostRepositoryImpl(
     @Transactional(readOnly = true)
     override fun findPostsByFollowingUsers(user: User, pageable: Pageable): Page<PostResponseDto> {
         val countQuery = """
-            SELECT COUNT(p) FROM Post p 
+            SELECT COUNT(DISTINCT p) FROM Post p 
             INNER JOIN UserFollow uf ON p.user.id = uf.followedUser.id 
             WHERE uf.followingUser.id = :userId
         """.trimIndent()
@@ -194,7 +231,8 @@ class CustomPostRepositoryImpl(
             SELECT DISTINCT p FROM Post p 
             LEFT JOIN FETCH p.user 
             LEFT JOIN FETCH p.spot 
-            LEFT JOIN FETCH p.postLikes 
+            LEFT JOIN FETCH p.postTags pt 
+            LEFT JOIN FETCH pt.tag
             INNER JOIN UserFollow uf ON p.user.id = uf.followedUser.id 
             WHERE uf.followingUser.id = :userId 
             ORDER BY p.createdAt DESC
@@ -207,7 +245,17 @@ class CustomPostRepositoryImpl(
             .resultList
             
         val postResponses = posts.map { post ->
-            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            // 별도 쿼리로 좋아요 여부 확인
+            val hasLikedQuery = """
+                SELECT COUNT(pl) > 0 FROM PostLike pl 
+                WHERE pl.post.id = :postId AND pl.user.id = :userId
+            """.trimIndent()
+            
+            val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+                .setParameter("postId", post.id)
+                .setParameter("userId", user.id)
+                .singleResult
+                
             post.toDto().apply { this.hasLiked = hasLiked }
         }
         
@@ -236,10 +284,11 @@ class CustomPostRepositoryImpl(
         val posts = if (popularPostIds.isEmpty()) {
             // 추천할 게시물이 없으면 최신 게시물 반환
             val latestQuery = """
-                SELECT p FROM Post p 
+                SELECT DISTINCT p FROM Post p 
                 LEFT JOIN FETCH p.user 
                 LEFT JOIN FETCH p.spot 
-                LEFT JOIN FETCH p.postLikes 
+                LEFT JOIN FETCH p.postTags pt 
+                LEFT JOIN FETCH pt.tag
                 ORDER BY p.createdAt DESC
             """.trimIndent()
             
@@ -249,10 +298,11 @@ class CustomPostRepositoryImpl(
                 .resultList
         } else {
             val query = """
-                SELECT p FROM Post p 
+                SELECT DISTINCT p FROM Post p 
                 LEFT JOIN FETCH p.user 
                 LEFT JOIN FETCH p.spot 
-                LEFT JOIN FETCH p.postLikes 
+                LEFT JOIN FETCH p.postTags pt 
+                LEFT JOIN FETCH pt.tag
                 WHERE p.id IN :postIds
             """.trimIndent()
             
@@ -262,7 +312,17 @@ class CustomPostRepositoryImpl(
         }
         
         val postResponses = posts.map { post ->
-            val hasLiked = post.postLikes.any { it.user.id == user.id }
+            // 별도 쿼리로 좋아요 여부 확인
+            val hasLikedQuery = """
+                SELECT COUNT(pl) > 0 FROM PostLike pl 
+                WHERE pl.post.id = :postId AND pl.user.id = :userId
+            """.trimIndent()
+            
+            val hasLiked = entityManager.createQuery(hasLikedQuery, Boolean::class.java)
+                .setParameter("postId", post.id)
+                .setParameter("userId", user.id)
+                .singleResult
+                
             post.toDto().apply { this.hasLiked = hasLiked }
         }
         

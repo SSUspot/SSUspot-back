@@ -11,6 +11,8 @@ import com.ssuspot.sns.domain.model.post.entity.PostTag
 import com.ssuspot.sns.domain.model.post.repository.CustomPostRepository
 import com.ssuspot.sns.domain.model.user.entity.User
 import com.ssuspot.sns.domain.model.spot.entity.Spot
+import com.ssuspot.sns.infrastructure.validation.InputSanitizer
+import com.ssuspot.sns.infrastructure.monitoring.BusinessMetricsCollector
 import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.cache.annotation.Caching
@@ -24,7 +26,9 @@ class PostService(
     private val customPostRepository: CustomPostRepository,
     private val spotService: SpotService,
     private val userService: UserService,
-    private val tagService: TagService
+    private val tagService: TagService,
+    private val inputSanitizer: InputSanitizer,
+    private val businessMetricsCollector: BusinessMetricsCollector
 ) {
     @Transactional(readOnly = true)
     @Cacheable(value = ["recommended-posts"], key = "#getRecommendPostsDto.email + '_' + #getRecommendPostsDto.page + '_' + #getRecommendPostsDto.size")
@@ -46,18 +50,56 @@ class PostService(
         CacheEvict(value = ["following-posts"], allEntries = true)
     ])
     fun createPost(createPostRequestDto: CreatePostRequestDto): PostResponseDto {
-        val post = createPostRequestDto.toEntity(
-            spotService.findValidSpot(createPostRequestDto.spotId),
-            userService.findValidUserByEmail(createPostRequestDto.userEmail),
+        val startTime = System.currentTimeMillis()
+        
+        // 입력 데이터 검증 및 정제
+        val sanitizedTitle = inputSanitizer.sanitizePostTitle(createPostRequestDto.title)
+        val sanitizedContent = inputSanitizer.sanitizePostContent(createPostRequestDto.content)
+        val sanitizedTags = createPostRequestDto.tags.map { inputSanitizer.sanitizeTagName(it) }
+        
+        // 이미지 URL 검증
+        createPostRequestDto.imageUrls.forEach { imageUrl ->
+            if (!inputSanitizer.isValidUrl(imageUrl)) {
+                throw IllegalArgumentException("잘못된 이미지 URL 형식입니다: $imageUrl")
+            }
+        }
+        
+        val sanitizedDto = createPostRequestDto.copy(
+            title = sanitizedTitle,
+            content = sanitizedContent,
+            tags = sanitizedTags
         )
+        
+        val user = userService.findValidUserByEmail(sanitizedDto.userEmail)
+        val spot = spotService.findValidSpot(sanitizedDto.spotId)
+        
+        val post = sanitizedDto.toEntity(spot, user)
         var savedPost = customPostRepository.save(post)
-        val postTags = createTags(createPostRequestDto.tags, savedPost)
+        val postTags = createTags(sanitizedDto.tags, savedPost)
         savedPost.postTags = postTags as MutableList<PostTag>
         savedPost = customPostRepository.save(savedPost)
+        
+        // 비즈니스 메트릭 수집
+        val duration = System.currentTimeMillis() - startTime
+        businessMetricsCollector.recordPostCreation(
+            postId = savedPost.id.toString(),
+            userId = user.id.toString(),
+            spotId = spot.id.toString(),
+            duration = duration
+        )
+        
         return savedPost.toDto()
     }
 
     @Transactional
+    @Caching(evict = [
+        CacheEvict(value = ["posts"], allEntries = true),
+        CacheEvict(value = ["postsByUser"], allEntries = true),
+        CacheEvict(value = ["postsBySpot"], allEntries = true),
+        CacheEvict(value = ["postsByTag"], allEntries = true),
+        CacheEvict(value = ["recommendedPosts"], allEntries = true),
+        CacheEvict(value = ["followingPosts"], allEntries = true)
+    ])
     fun updatePost(updatePostRequestDto: UpdatePostRequestDto): PostResponseDto {
         val post = findValidPostById(updatePostRequestDto.postId)
         val user = userService.findValidUserByEmail(updatePostRequestDto.email)
@@ -66,6 +108,8 @@ class PostService(
         return customPostRepository.save(post).toDto()
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["followingPosts"], key = "#getPostsRequest.email + '_' + #getPostsRequest.page + '_' + #getPostsRequest.size")
     fun getFollowingPosts(getPostsRequest: GetFollowingPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByFollowingUsers(
@@ -75,6 +119,8 @@ class PostService(
         return posts.content
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["postsByUser"], key = "#getPostsRequest.email + '_' + #getPostsRequest.page + '_' + #getPostsRequest.size")
     fun getMyPosts(getPostsRequest: GetMyPostsDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsRequest.email)
         val posts = customPostRepository.findPostsByUserId(
@@ -84,6 +130,15 @@ class PostService(
         return posts.content
     }
 
+    @Transactional
+    @Caching(evict = [
+        CacheEvict(value = ["posts"], allEntries = true),
+        CacheEvict(value = ["postsByUser"], allEntries = true),
+        CacheEvict(value = ["postsBySpot"], allEntries = true),
+        CacheEvict(value = ["postsByTag"], allEntries = true),
+        CacheEvict(value = ["recommendedPosts"], allEntries = true),
+        CacheEvict(value = ["followingPosts"], allEntries = true)
+    ])
     fun deletePost(specificPostRequestDto: SpecificPostRequestDto) {
         val post = findValidPostById(specificPostRequestDto.postId)
         val user = userService.findValidUserByEmail(specificPostRequestDto.email)
@@ -92,13 +147,24 @@ class PostService(
     }
 
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["posts"], key = "#specificPostRequestDto.postId + '_' + #specificPostRequestDto.email")
     fun getPostById(specificPostRequestDto: SpecificPostRequestDto): PostResponseDto {
         val user = userService.findValidUserByEmail(specificPostRequestDto.email)
         val post =
             customPostRepository.findPostById(specificPostRequestDto.postId, user) ?: throw PostNotFoundException()
+        
+        // 비즈니스 메트릭 수집 - 게시물 조회
+        businessMetricsCollector.recordPostView(
+            postId = specificPostRequestDto.postId.toString(),
+            userId = user.id?.toString()
+        )
+        
         return post
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["postsBySpot"], key = "#getPostsBySpotIdDto.spotId + '_' + #getPostsBySpotIdDto.email + '_' + #getPostsBySpotIdDto.page + '_' + #getPostsBySpotIdDto.size")
     fun getPostsBySpotId(getPostsBySpotIdDto: GetPostsBySpotIdDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(getPostsBySpotIdDto.email)
         val posts = customPostRepository.findPostsBySpotId(
@@ -109,6 +175,8 @@ class PostService(
         return posts.content
     }
 
+    @Transactional(readOnly = true)
+    @Cacheable(value = ["postsByTag"], key = "#request.tagName + '_' + #request.email + '_' + #request.page + '_' + #request.size")
     fun findPostsByTagName(request: GetTagRequestDto): List<PostResponseDto> {
         val user = userService.findValidUserByEmail(request.email)
         val posts =

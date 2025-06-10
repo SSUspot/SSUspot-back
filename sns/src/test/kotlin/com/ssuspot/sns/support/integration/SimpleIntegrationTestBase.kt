@@ -1,6 +1,7 @@
 package com.ssuspot.sns.support.integration
 
 import com.ssuspot.sns.infrastructure.configs.TestCacheConfig
+import com.ssuspot.sns.infrastructure.configs.TestSecurityConfig
 import io.restassured.RestAssured
 import io.restassured.config.ObjectMapperConfig
 import io.restassured.config.RestAssuredConfig
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Transactional
-@Import(TestCacheConfig::class)
+@Import(TestCacheConfig::class, TestSecurityConfig::class)
 abstract class SimpleIntegrationTestBase {
 
     @LocalServerPort

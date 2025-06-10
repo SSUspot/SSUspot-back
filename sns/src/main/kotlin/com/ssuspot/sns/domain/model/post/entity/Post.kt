@@ -8,7 +8,17 @@ import jakarta.persistence.*
 import org.hibernate.annotations.BatchSize
 
 @Entity
-@Table(name = "posts")
+@Table(
+    name = "posts",
+    indexes = [
+        Index(name = "idx_posts_user_id", columnList = "user_id"),
+        Index(name = "idx_posts_spot_id", columnList = "spot_id"),
+        Index(name = "idx_posts_created_at", columnList = "created_at"),
+        Index(name = "idx_posts_user_created", columnList = "user_id, created_at"),
+        Index(name = "idx_posts_spot_created", columnList = "spot_id, created_at"),
+        Index(name = "idx_posts_like_count", columnList = "like_count")
+    ]
+)
 class Post(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +46,8 @@ class Post(
     @field:Column(name = "rating")
     var rating: Double? = 0.0,
 
-    @field:ElementCollection(fetch = FetchType.EAGER)
+    @field:ElementCollection(fetch = FetchType.LAZY)
+    @field:BatchSize(size = 20)
     var imageUrls: List<String> = listOf(),
 
     @field:OneToMany(mappedBy = "post", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)

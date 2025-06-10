@@ -2,9 +2,17 @@ package com.ssuspot.sns.domain.model.spot.entity
 
 import com.ssuspot.sns.domain.model.post.entity.Post
 import jakarta.persistence.*
+import org.hibernate.annotations.BatchSize
 
 @Entity
-@Table(name = "spots")
+@Table(
+    name = "spots",
+    indexes = [
+        Index(name = "idx_spots_spot_name", columnList = "spot_name"),
+        Index(name = "idx_spots_spot_level", columnList = "spot_level"),
+        Index(name = "idx_spots_location", columnList = "latitude, longitude")
+    ]
+)
 class Spot(
         @field:Id
         @field:GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,6 +41,7 @@ class Spot(
         @field:Column(name = "longitude")
         val longitude: Double,
 
-        @field:OneToMany(mappedBy = "spot", cascade = [CascadeType.ALL])
+        @field:OneToMany(mappedBy = "spot", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+        @field:BatchSize(size = 20)
         var posts: MutableList<Post> = mutableListOf()
 )

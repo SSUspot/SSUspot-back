@@ -5,7 +5,14 @@ import com.ssuspot.sns.domain.model.user.entity.User
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "post_likes")
+@Table(
+    name = "post_likes",
+    indexes = [
+        Index(name = "idx_post_likes_post_id", columnList = "post_id"),
+        Index(name = "idx_post_likes_user_id", columnList = "user_id"),
+        Index(name = "idx_post_likes_post_user", columnList = "post_id, user_id")
+    ]
+)
 class PostLike(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -7,7 +7,14 @@ import com.ssuspot.sns.domain.model.user.entity.User
 import jakarta.persistence.*
 
 @Entity
-@Table(name = "comments")
+@Table(
+    name = "comments",
+    indexes = [
+        Index(name = "idx_comments_post_id", columnList = "post_id"),
+        Index(name = "idx_comments_user_id", columnList = "user_id"),
+        Index(name = "idx_comments_post_created", columnList = "post_id, created_at")
+    ]
+)
 class Comment(
     @field:Id
     @field:GeneratedValue(strategy = GenerationType.IDENTITY)
