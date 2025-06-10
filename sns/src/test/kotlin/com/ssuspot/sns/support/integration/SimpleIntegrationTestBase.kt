@@ -1,11 +1,13 @@
 package com.ssuspot.sns.support.integration
 
+import com.ssuspot.sns.infrastructure.configs.TestCacheConfig
 import io.restassured.RestAssured
 import io.restassured.config.ObjectMapperConfig
 import io.restassured.config.RestAssuredConfig
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.transaction.annotation.Transactional
 
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @Transactional
+@Import(TestCacheConfig::class)
 abstract class SimpleIntegrationTestBase {
 
     @LocalServerPort

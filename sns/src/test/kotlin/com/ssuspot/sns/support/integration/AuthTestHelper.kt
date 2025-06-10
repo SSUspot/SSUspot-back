@@ -18,16 +18,30 @@ class AuthTestHelper {
      * 테스트용 사용자 등록 및 로그인하여 JWT 토큰 반환
      */
     fun registerAndLoginUser(
-        email: String = "test@example.com",
-        password: String = "password123",
-        userName: String = "testuser",
-        nickname: String = "테스트유저"
+        email: String = generateUniqueEmail(),
+        password: String = "Password123!",
+        userName: String = generateUniqueUserName(),
+        nickname: String = "테스트유저${System.currentTimeMillis()}"
     ): String {
         // 회원가입
         registerUser(email, password, userName, nickname)
         
         // 로그인하여 토큰 획득
         return loginUser(email, password)
+    }
+
+    /**
+     * 고유한 이메일 생성
+     */
+    private fun generateUniqueEmail(): String {
+        return "test${System.currentTimeMillis()}${(Math.random() * 1000).toInt()}@example.com"
+    }
+
+    /**
+     * 고유한 사용자명 생성
+     */
+    private fun generateUniqueUserName(): String {
+        return "user${System.currentTimeMillis()}${(Math.random() * 1000).toInt()}"
     }
 
     /**
@@ -90,10 +104,12 @@ class AuthTestHelper {
      */
     fun createMultipleUsers(count: Int): List<Pair<String, String>> {
         return (1..count).map { index ->
-            val email = "user$index@example.com"
-            val password = "password$index"
-            val userName = "user$index"
-            val nickname = "사용자$index"
+            val timestamp = System.currentTimeMillis()
+            val random = (Math.random() * 1000).toInt()
+            val email = "user${timestamp}${random}${index}@example.com"
+            val password = "Password123!"
+            val userName = "user${timestamp}${random}${index}"
+            val nickname = "사용자${timestamp}${index}"
             
             val token = registerAndLoginUser(email, password, userName, nickname)
             Pair(email, token)
@@ -104,11 +120,12 @@ class AuthTestHelper {
      * 관리자 사용자 생성 (권한 테스트용)
      */
     fun createAdminUser(): String {
+        val timestamp = System.currentTimeMillis()
         return registerAndLoginUser(
-            email = "admin@example.com",
-            password = "admin123",
-            userName = "admin",
-            nickname = "관리자"
+            email = "admin${timestamp}@example.com",
+            password = "Password123!",
+            userName = "admin${timestamp}",
+            nickname = "관리자${timestamp}"
         )
     }
 
