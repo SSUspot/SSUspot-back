@@ -1,0 +1,345 @@
+openapi: 3.0.3
+info:
+  title: SSUSpot SNS API
+  description: |
+    ## SSUSpot SNS 백엔드 API 문서
+    
+    ### 주요 기능
+    - 사용자 인증 및 권한 관리 (JWT)
+    - 게시물 CRUD 및 좋아요/댓글 시스템
+    - 팔로우 시스템
+    - 스팟(장소) 기반 게시물 관리
+    - 태그 시스템
+    - 실시간 알림
+    
+    ### 인증 방법
+    1. `/api/users/login`으로 로그인
+    2. 응답으로 받은 `accessToken`을 Authorization 헤더에 `Bearer {token}` 형태로 포함
+    3. Refresh Token을 사용한 토큰 갱신 지원
+    
+    ### 개발 환경
+    - Spring Boot 3.2.0
+    - Kotlin
+    - PostgreSQL
+    - Redis
+    - JWT Authentication
+    
+    ### 주의사항
+    - 모든 시간은 UTC 기준
+    - 페이징은 1부터 시작
+    - Rate Limiting: 분당 60회, 시간당 1000회
+    
+  version: v1.0.0
+  contact:
+    name: SSUSpot Development Team
+    email: dev@ssuspot.com
+    url: https://github.com/SSUspot/SSUspot-back
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://ssuspot.infinitefallcult.trade
+    description: Production Server
+  - url: http://localhost:8080
+    description: Local Development Server
+
+components:
+  securitySchemes:
+    Bearer Authentication:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT 토큰을 입력하세요 (Bearer 접두사 없이)
+
+  schemas:
+    # Common Responses
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "오류 메시지"
+        code:
+          type: string
+          example: "ERROR_CODE"
+        timestamp:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+
+    # User Schemas
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "password123"
+
+    RegisterRequest:
+      type: object
+      required:
+        - email
+        - password
+        - userName
+        - nickname
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        password:
+          type: string
+          format: password
+          example: "password123"
+        userName:
+          type: string
+          example: "홍길동"
+        nickname:
+          type: string
+          example: "gildong"
+        profileMessage:
+          type: string
+          example: "안녕하세요!"
+        profileImageLink:
+          type: string
+          format: uri
+          example: "https://example.com/profile.jpg"
+
+    LoginResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiJ9..."
+        refreshToken:
+          type: string
+          example: "eyJhbGciOiJIUzI1NiJ9..."
+        tokenType:
+          type: string
+          example: "Bearer"
+        expiresIn:
+          type: integer
+          example: 3600
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+        userName:
+          type: string
+          example: "홍길동"
+        nickname:
+          type: string
+          example: "gildong"
+        profileMessage:
+          type: string
+          example: "안녕하세요!"
+        profileImageLink:
+          type: string
+          format: uri
+          example: "https://example.com/profile.jpg"
+
+    # Post Schemas
+    CreatePostRequest:
+      type: object
+      required:
+        - content
+        - spotId
+      properties:
+        content:
+          type: string
+          example: "멋진 카페에서 커피 한 잔!"
+        spotId:
+          type: integer
+          format: int64
+          example: 1
+        imageLinks:
+          type: array
+          items:
+            type: string
+            format: uri
+          example: ["https://example.com/image1.jpg", "https://example.com/image2.jpg"]
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["카페", "커피", "데이트"]
+
+    PostResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        content:
+          type: string
+          example: "멋진 카페에서 커피 한 잔!"
+        author:
+          $ref: '#/components/schemas/UserResponse'
+        spot:
+          $ref: '#/components/schemas/SpotResponse'
+        images:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImageResponse'
+        tags:
+          type: array
+          items:
+            type: string
+          example: ["카페", "커피", "데이트"]
+        likeCount:
+          type: integer
+          example: 15
+        commentCount:
+          type: integer
+          example: 3
+        isLiked:
+          type: boolean
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+
+    # Spot Schemas
+    CreateSpotRequest:
+      type: object
+      required:
+        - name
+        - latitude
+        - longitude
+      properties:
+        name:
+          type: string
+          example: "멋진 카페"
+        latitude:
+          type: number
+          format: double
+          example: 37.5665
+        longitude:
+          type: number
+          format: double
+          example: 126.9780
+        address:
+          type: string
+          example: "서울시 중구 명동"
+        description:
+          type: string
+          example: "분위기 좋은 카페입니다"
+
+    SpotResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        name:
+          type: string
+          example: "멋진 카페"
+        latitude:
+          type: number
+          format: double
+          example: 37.5665
+        longitude:
+          type: number
+          format: double
+          example: 126.9780
+        address:
+          type: string
+          example: "서울시 중구 명동"
+        description:
+          type: string
+          example: "분위기 좋은 카페입니다"
+        postCount:
+          type: integer
+          example: 5
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+
+    # Image Schema
+    ImageResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        imageLink:
+          type: string
+          format: uri
+          example: "https://example.com/image.jpg"
+        order:
+          type: integer
+          example: 1
+
+    # Comment Schemas
+    CreateCommentRequest:
+      type: object
+      required:
+        - content
+      properties:
+        content:
+          type: string
+          example: "좋은 게시물이네요!"
+
+    CommentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1
+        content:
+          type: string
+          example: "좋은 게시물이네요!"
+        author:
+          $ref: '#/components/schemas/UserResponse'
+        createdAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2023-12-01T10:30:00Z"
+
+security:
+  - Bearer Authentication: []
+
+tags:
+  - name: User
+    description: 사용자 관리 API
+  - name: Post
+    description: 게시물 관리 API  
+  - name: Comment
+    description: 댓글 관리 API
+  - name: Spot
+    description: 스팟 관리 API
+  - name: Tag
+    description: 태그 관리 API
+  - name: Image
+    description: 이미지 관리 API

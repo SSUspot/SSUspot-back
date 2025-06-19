@@ -2,6 +2,7 @@ package com.ssuspot.sns.api.controller.post
 
 import com.ssuspot.sns.api.request.post.CreatePostRequest
 import com.ssuspot.sns.api.request.post.UpdatePostRequest
+import com.ssuspot.sns.api.response.common.ErrorResponse
 import com.ssuspot.sns.api.response.post.PostResponse
 import com.ssuspot.sns.application.annotation.Auth
 import com.ssuspot.sns.application.dto.post.*

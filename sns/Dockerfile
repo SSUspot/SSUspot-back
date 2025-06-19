@@ -31,8 +31,12 @@ RUN addgroup -g 1000 spring && \
 # Set working directory
 WORKDIR /app
 
-# Copy JAR from builder
-COPY --from=builder /app/build/libs/sns-*.jar app.jar
+# Copy JAR from builder - use shell to handle multiple files
+COPY --from=builder /app/build/libs/ /tmp/libs/
+RUN find /tmp/libs -name "*.jar" -not -name "*-plain.jar" -exec cp {} /app/app.jar \;
+
+# Create log directory
+RUN mkdir -p /var/log/ssuspot && chown -R spring:spring /var/log/ssuspot
 
 # Change ownership
 RUN chown -R spring:spring /app

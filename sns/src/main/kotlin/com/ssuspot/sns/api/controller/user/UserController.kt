@@ -1,6 +1,7 @@
 package com.ssuspot.sns.api.controller.user
 
 import com.ssuspot.sns.api.response.common.ApiResponse
+import com.ssuspot.sns.api.response.common.ErrorResponse
 import com.ssuspot.sns.api.response.user.FollowUserResponse
 import com.ssuspot.sns.api.request.user.LoginRequest
 import com.ssuspot.sns.api.request.user.RefreshRequest
